@@ -4,6 +4,7 @@ import { Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Avatar, Btn, Card, Chip, Row, SathiBadge, T } from '../components/atoms';
 import { ScreenScroll } from '../components/ScreenContainer';
+import { useToast } from '../components/Toast';
 import { colors } from '../theme';
 
 const debts = [
@@ -18,6 +19,7 @@ const debts = [
 
 export function LedgerScreen({ onClose }: { onClose: () => void }) {
   const total = debts.reduce((s, d) => s + d.amount, 0);
+  const toast = useToast();
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
       <View style={{ backgroundColor: '#fff', padding: 14, borderBottomWidth: 1, borderBottomColor: colors.border2 }}>
@@ -42,13 +44,28 @@ export function LedgerScreen({ onClose }: { onClose: () => void }) {
           <T size={14} style={{ marginTop: 6, lineHeight: 20 }}>
             <T weight="b">রহিম মিয়া</T> ৩২ দিন ধরে বাকি — মনে করিয়ে দিতে পারেন।
           </T>
-          <Btn kind="coral" label="রহিম মিয়াকে SMS পাঠান" full size="sm" style={{ marginTop: 12 }} />
+          <Btn
+            kind="coral"
+            label="রহিম মিয়াকে SMS পাঠান"
+            full
+            size="sm"
+            style={{ marginTop: 12 }}
+            onPress={() => toast.show('রহিম মিয়াকে অনুস্মারক SMS পাঠানো হয়েছে', 'success')}
+          />
         </Card>
 
         <Card style={{ padding: 4 }}>
           {debts.map((d, i) => (
-            <Row
+            <Pressable
               key={d.n}
+              onPress={() =>
+                toast.show(
+                  `${d.n} · ৳${d.amount.toLocaleString('bn-BD')} · ${d.days} দিন`,
+                  d.kind === 'coral' ? 'warn' : 'info'
+                )
+              }
+            >
+            <Row
               gap={12}
               style={{
                 padding: 14,
@@ -70,10 +87,18 @@ export function LedgerScreen({ onClose }: { onClose: () => void }) {
                 </Row>
               </View>
             </Row>
+            </Pressable>
           ))}
         </Card>
 
-        <Btn kind="greyOutline" label="নতুন বাকি যোগ করুন" full style={{ marginTop: 14 }} iconLeft={<Ionicons name="add" size={16} color={colors.ink2} />} />
+        <Btn
+          kind="greyOutline"
+          label="নতুন বাকি যোগ করুন"
+          full
+          style={{ marginTop: 14 }}
+          iconLeft={<Ionicons name="add" size={16} color={colors.ink2} />}
+          onPress={() => toast.show('নতুন বাকি ফর্ম শীঘ্রই আসছে', 'info')}
+        />
       </ScreenScroll>
     </SafeAreaView>
   );

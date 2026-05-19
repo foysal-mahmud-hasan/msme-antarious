@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
-import React, { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import React from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useAuth } from '../auth/AuthContext';
 import { useResponsive } from '../components/AppFrame';
 import { Avatar, PulseDot, Row, T } from '../components/atoms';
@@ -17,34 +17,22 @@ import { OfflineHomeScreen } from '../screens/OfflineHomeScreen';
 import { POPortalScreen } from '../screens/POPortalScreen';
 import { QuickSaleScreen } from '../screens/QuickSaleScreen';
 import { SathiChatScreen } from '../screens/SathiChatScreen';
+import { OverlayName, Route, useActions } from '../state/AppActions';
 import { colors } from '../theme';
 
-type RouteId = 'home' | 'messages' | 'market' | 'finance' | 'more';
-type Overlay =
-  | null
-  | 'sathi'
-  | 'agent'
-  | 'autopilot'
-  | 'approvals'
-  | 'sale'
-  | 'haat'
-  | 'ledger'
-  | 'journey'
-  | 'po';
+type Props = {
+  route: Route;
+  setRoute: (r: Route) => void;
+  overlay: OverlayName | null;
+};
 
-export function DesktopShell() {
+export function DesktopShell({ route, setRoute, overlay }: Props) {
   const { user, offline } = useAuth();
-  const [route, setRoute] = useState<RouteId>('home');
-  const [overlay, setOverlay] = useState<Overlay>(null);
   const { width } = useResponsive();
+  const actions = useActions();
   const sidebarWidth = width >= 1280 ? 260 : 220;
 
-  const openAgent = () => setOverlay('agent');
-  const openApprovals = () => setOverlay('approvals');
-  const close = () => setOverlay(null);
-  const back = (to: Overlay) => setOverlay(to);
-
-  const items: { id: RouteId; label: string; icon: keyof typeof Ionicons.glyphMap }[] = [
+  const items: { id: Route; label: string; icon: keyof typeof Ionicons.glyphMap }[] = [
     { id: 'home', label: 'হোম · Home', icon: 'home-outline' },
     { id: 'messages', label: 'বার্তা · Messages', icon: 'chatbubble-outline' },
     { id: 'market', label: 'বাজার · Market', icon: 'storefront-outline' },
@@ -54,7 +42,6 @@ export function DesktopShell() {
 
   return (
     <View style={styles.shell}>
-      {/* Sidebar */}
       <View style={[styles.sidebar, { width: sidebarWidth }]}>
         <View style={{ padding: 18, paddingBottom: 12 }}>
           <Row gap={10}>
@@ -89,11 +76,11 @@ export function DesktopShell() {
         <View style={{ height: 1, backgroundColor: colors.border2, marginVertical: 14, marginHorizontal: 14 }} />
 
         <View style={{ paddingHorizontal: 10, gap: 2 }}>
-          <Pressable onPress={openAgent} style={styles.navItem}>
+          <Pressable onPress={() => actions.openOverlay('agent')} style={styles.navItem}>
             <PulseDot size={8} />
             <T weight="b" size={13} color={colors.tealDark}>সাথী চলছে · Live</T>
           </Pressable>
-          <Pressable onPress={openApprovals} style={styles.navItem}>
+          <Pressable onPress={() => actions.openOverlay('approvals')} style={styles.navItem}>
             <View style={{ position: 'relative' }}>
               <Ionicons name="notifications-outline" size={18} color={colors.ink} />
               <View style={styles.dotBadge} />
@@ -104,14 +91,14 @@ export function DesktopShell() {
               <T size={11} weight="b" color="#fff">৩</T>
             </View>
           </Pressable>
-          <Pressable onPress={() => setOverlay('sathi')} style={styles.navItem}>
+          <Pressable onPress={() => actions.openOverlay('sathi')} style={styles.navItem}>
             <View style={styles.sathiTile}>
               <T weight="b" color="#fff" size={11}>স</T>
             </View>
             <T weight="m" size={13.5}>সাথী চ্যাট</T>
           </Pressable>
           {user?.hasPOPortal ? (
-            <Pressable onPress={() => setOverlay('po')} style={styles.navItem}>
+            <Pressable onPress={() => actions.openOverlay('po')} style={styles.navItem}>
               <Ionicons name="business-outline" size={18} color="#1d4ed8" />
               <T weight="m" size={13.5} color="#1d4ed8">PO পোর্টাল</T>
             </Pressable>
@@ -122,63 +109,44 @@ export function DesktopShell() {
         <UserPill />
       </View>
 
-      {/* Content */}
       <View style={styles.content}>
         <View style={{ flex: 1 }}>
-          {route === 'home' &&
-            (offline ? (
-              <OfflineHomeScreen
-                onOpenAgent={openAgent}
-                onOpenApprovals={openApprovals}
-                onOpenSale={() => setOverlay('sale')}
-                onOpenHaat={() => setOverlay('haat')}
-                onOpenLedger={() => setOverlay('ledger')}
-                onOpenJourney={() => setOverlay('journey')}
-              />
-            ) : (
-              <HomeScreen onOpenAgent={openAgent} onOpenApprovals={openApprovals} />
-            ))}
-          {route === 'messages' && <MessagesScreen onOpenAgent={openAgent} onOpenApprovals={openApprovals} />}
-          {route === 'market' && <MarketScreen onOpenAgent={openAgent} onOpenApprovals={openApprovals} />}
-          {route === 'finance' && <FinanceScreen onOpenAgent={openAgent} onOpenApprovals={openApprovals} />}
-          {route === 'more' && <MoreScreen onOpenPOPortal={() => setOverlay('po')} />}
+          {route === 'home' && (offline ? <OfflineHomeScreen /> : <HomeScreen />)}
+          {route === 'messages' && <MessagesScreen />}
+          {route === 'market' && <MarketScreen />}
+          {route === 'finance' && <FinanceScreen />}
+          {route === 'more' && <MoreScreen />}
         </View>
       </View>
 
-      {/* Right drawer overlays */}
-      <DrawerOverlay open={overlay === 'sathi'} onClose={close}>
-        <SathiChatScreen onClose={close} />
+      <DrawerOverlay open={overlay === 'sathi'} onClose={actions.closeOverlay}>
+        <SathiChatScreen onClose={actions.closeOverlay} prefill={actions.overlayPrefill} />
       </DrawerOverlay>
-      <DrawerOverlay open={overlay === 'agent'} onClose={close} dark>
-        <AgentLiveScreen
-          onClose={close}
-          onOpenAutopilot={() => setOverlay('autopilot')}
-          onOpenApprovals={() => setOverlay('approvals')}
-        />
+      <DrawerOverlay open={overlay === 'agent'} onClose={actions.closeOverlay} dark>
+        <AgentLiveScreen onClose={actions.closeOverlay} />
       </DrawerOverlay>
-      <DrawerOverlay open={overlay === 'autopilot'} onClose={() => back('agent')}>
-        <AutopilotScreen onClose={() => back('agent')} />
+      <DrawerOverlay open={overlay === 'autopilot'} onClose={actions.closeOverlay}>
+        <AutopilotScreen onClose={actions.closeOverlay} />
       </DrawerOverlay>
-      <DrawerOverlay open={overlay === 'approvals'} onClose={close}>
-        <ApprovalsScreen onClose={close} />
+      <DrawerOverlay open={overlay === 'approvals'} onClose={actions.closeOverlay}>
+        <ApprovalsScreen onClose={actions.closeOverlay} />
       </DrawerOverlay>
-      <DrawerOverlay open={overlay === 'sale'} onClose={close} width={680}>
-        <QuickSaleScreen onClose={close} />
+      <DrawerOverlay open={overlay === 'sale'} onClose={actions.closeOverlay} width={680}>
+        <QuickSaleScreen onClose={actions.closeOverlay} />
       </DrawerOverlay>
-      <DrawerOverlay open={overlay === 'haat'} onClose={close} width={520}>
-        <HaatPrepScreen onClose={close} />
+      <DrawerOverlay open={overlay === 'haat'} onClose={actions.closeOverlay} width={520}>
+        <HaatPrepScreen onClose={actions.closeOverlay} />
       </DrawerOverlay>
-      <DrawerOverlay open={overlay === 'ledger'} onClose={close} width={560}>
-        <LedgerScreen onClose={close} />
+      <DrawerOverlay open={overlay === 'ledger'} onClose={actions.closeOverlay} width={560}>
+        <LedgerScreen onClose={actions.closeOverlay} />
       </DrawerOverlay>
-      <DrawerOverlay open={overlay === 'journey'} onClose={close} width={560}>
-        <JourneyScreen onClose={close} />
+      <DrawerOverlay open={overlay === 'journey'} onClose={actions.closeOverlay} width={560}>
+        <JourneyScreen onClose={actions.closeOverlay} />
       </DrawerOverlay>
 
-      {/* PO portal: full-screen takeover because it's a different surface */}
       {overlay === 'po' && user?.hasPOPortal ? (
         <View style={StyleSheet.absoluteFill}>
-          <POPortalScreen onClose={close} />
+          <POPortalScreen onClose={actions.closeOverlay} />
         </View>
       ) : null}
     </View>
@@ -228,7 +196,7 @@ function DrawerOverlay({
           top: 0,
           bottom: 0,
           width,
-          maxWidth: '100%',
+          maxWidth: ('100%') as `${number}%`,
           backgroundColor: dark ? '#0f172a' : colors.bg,
           shadowColor: '#000',
           shadowOpacity: 0.25,

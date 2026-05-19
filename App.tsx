@@ -4,7 +4,6 @@ import {
   HindSiliguri_600SemiBold,
   HindSiliguri_700Bold,
 } from '@expo-google-fonts/hind-siliguri';
-import { NavigationContainer } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
@@ -14,6 +13,7 @@ import { AuthProvider, useAuth } from './src/auth/AuthContext';
 import { LoginScreen } from './src/auth/LoginScreen';
 import { AppFrame } from './src/components/AppFrame';
 import { T } from './src/components/atoms';
+import { ToastProvider } from './src/components/Toast';
 import { Shell } from './src/navigation/Shell';
 import { colors } from './src/theme';
 
@@ -60,14 +60,14 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <AuthProvider>
-        <NavigationContainer>
-          <StatusBar style="dark" />
-          <AppFrame>
+      <StatusBar style="dark" />
+      <AppFrame>
+        <ToastProvider>
+          <AuthProvider>
             <Gate />
-          </AppFrame>
-        </NavigationContainer>
-      </AuthProvider>
+          </AuthProvider>
+        </ToastProvider>
+      </AppFrame>
     </SafeAreaProvider>
   );
 }

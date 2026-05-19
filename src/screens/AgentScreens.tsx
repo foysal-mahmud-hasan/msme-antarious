@@ -3,17 +3,13 @@ import React, { useState } from 'react';
 import { Pressable, ScrollView, Switch, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Btn, Card, Chip, PulseDot, Row, SathiBadge, T } from '../components/atoms';
+import { useToast } from '../components/Toast';
+import { useActions } from '../state/AppActions';
 import { colors } from '../theme';
 
-export function AgentLiveScreen({
-  onClose,
-  onOpenAutopilot,
-  onOpenApprovals,
-}: {
-  onClose: () => void;
-  onOpenAutopilot: () => void;
-  onOpenApprovals: () => void;
-}) {
+export function AgentLiveScreen({ onClose }: { onClose: () => void }) {
+  const actions = useActions();
+  const toast = useToast();
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#0f172a' }}>
       <View style={{ padding: 14, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
@@ -24,7 +20,7 @@ export function AgentLiveScreen({
           <T weight="b" color="#fff" size={16}>সাথী লাইভ</T>
           <T size={12} color="#94a3b8">কমান্ড সেন্টার</T>
         </View>
-        <Pressable onPress={onOpenAutopilot} style={iconBtnDark} hitSlop={6}>
+        <Pressable onPress={() => actions.openOverlay('autopilot')} style={iconBtnDark} hitSlop={6}>
           <Ionicons name="options-outline" size={20} color="#fff" />
         </Pressable>
       </View>
@@ -47,28 +43,44 @@ export function AgentLiveScreen({
         </View>
 
         <T weight="b" color="#fff" size={14} style={{ marginBottom: 8 }}>এই মুহূর্তে</T>
-        <Card style={{ padding: 14, backgroundColor: '#1e293b', borderColor: '#334155', marginBottom: 8 }}>
-          <Row gap={8}>
-            <PulseDot color={colors.teal} />
-            <T weight="b" color="#fff" size={13}>৩টি বার্তার খসড়া তৈরি</T>
-          </Row>
-          <T size={12} color="#94a3b8" style={{ marginTop: 4 }}>আপনার অনুমোদনের অপেক্ষায়</T>
-          <Btn kind="teal" label="অনুমোদন দেখুন" full size="sm" style={{ marginTop: 10 }} onPress={onOpenApprovals} />
-        </Card>
-        <Card style={{ padding: 14, backgroundColor: '#1e293b', borderColor: '#334155', marginBottom: 8 }}>
-          <Row gap={8}>
-            <Ionicons name="checkmark-circle" size={16} color={colors.green} />
-            <T weight="b" color="#fff" size={13}>২টি অর্ডার নিশ্চিত করা হয়েছে</T>
-          </Row>
-          <T size={12} color="#94a3b8" style={{ marginTop: 4 }}>৬ মিনিট আগে · Pathao পিকআপ অনুরোধ পাঠানো হয়েছে</T>
-        </Card>
-        <Card style={{ padding: 14, backgroundColor: '#1e293b', borderColor: '#334155', marginBottom: 8 }}>
-          <Row gap={8}>
-            <Ionicons name="trending-up" size={16} color={colors.saffron} />
-            <T weight="b" color="#fff" size={13}>বাজার পর্যবেক্ষণ</T>
-          </Row>
-          <T size={12} color="#94a3b8" style={{ marginTop: 4 }}>মিনি ফ্যানের চাহিদা +৪৭% — সুযোগ চিহ্নিত</T>
-        </Card>
+        <Pressable onPress={() => actions.openOverlay('approvals')}>
+          <Card style={{ padding: 14, backgroundColor: '#1e293b', borderColor: '#334155', marginBottom: 8 }}>
+            <Row gap={8}>
+              <PulseDot color={colors.teal} />
+              <T weight="b" color="#fff" size={13}>৩টি বার্তার খসড়া তৈরি</T>
+            </Row>
+            <T size={12} color="#94a3b8" style={{ marginTop: 4 }}>আপনার অনুমোদনের অপেক্ষায়</T>
+            <Btn kind="teal" label="অনুমোদন দেখুন" full size="sm" style={{ marginTop: 10 }} onPress={() => actions.openOverlay('approvals')} />
+          </Card>
+        </Pressable>
+        <Pressable
+          onPress={() => {
+            actions.goto('messages', 'orders');
+            toast.show('অর্ডার ট্যাব খোলা হয়েছে', 'info');
+          }}
+        >
+          <Card style={{ padding: 14, backgroundColor: '#1e293b', borderColor: '#334155', marginBottom: 8 }}>
+            <Row gap={8}>
+              <Ionicons name="checkmark-circle" size={16} color={colors.green} />
+              <T weight="b" color="#fff" size={13}>২টি অর্ডার নিশ্চিত করা হয়েছে</T>
+            </Row>
+            <T size={12} color="#94a3b8" style={{ marginTop: 4 }}>৬ মিনিট আগে · Pathao পিকআপ অনুরোধ পাঠানো হয়েছে</T>
+          </Card>
+        </Pressable>
+        <Pressable
+          onPress={() => {
+            actions.goto('market', 'opp');
+            toast.show('বাজার ট্যাব খোলা হয়েছে', 'info');
+          }}
+        >
+          <Card style={{ padding: 14, backgroundColor: '#1e293b', borderColor: '#334155', marginBottom: 8 }}>
+            <Row gap={8}>
+              <Ionicons name="trending-up" size={16} color={colors.saffron} />
+              <T weight="b" color="#fff" size={13}>বাজার পর্যবেক্ষণ</T>
+            </Row>
+            <T size={12} color="#94a3b8" style={{ marginTop: 4 }}>মিনি ফ্যানের চাহিদা +৪৭% — সুযোগ চিহ্নিত</T>
+          </Card>
+        </Pressable>
 
         <T weight="b" color="#fff" size={14} style={{ marginTop: 18, marginBottom: 8 }}>আজকের অর্জন</T>
         <Row gap={8}>
@@ -82,7 +94,13 @@ export function AgentLiveScreen({
           </Card>
         </Row>
 
-        <Btn kind="greyOutline" label="অটোপাইলট সেটিংস" full style={{ marginTop: 18, backgroundColor: '#1e293b', borderColor: '#334155' }} onPress={onOpenAutopilot} />
+        <Btn
+          kind="greyOutline"
+          label="অটোপাইলট সেটিংস"
+          full
+          style={{ marginTop: 18, backgroundColor: '#1e293b', borderColor: '#334155' }}
+          onPress={() => actions.openOverlay('autopilot')}
+        />
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -90,6 +108,7 @@ export function AgentLiveScreen({
 }
 
 export function AutopilotScreen({ onClose }: { onClose: () => void }) {
+  const toast = useToast();
   const [auto, setAuto] = useState({ orders: true, messages: false, restock: false, market: true });
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
@@ -129,7 +148,10 @@ export function AutopilotScreen({ onClose }: { onClose: () => void }) {
               </View>
               <Switch
                 value={auto[it.key]}
-                onValueChange={(v) => setAuto((a) => ({ ...a, [it.key]: v }))}
+                onValueChange={(v) => {
+                  setAuto((a) => ({ ...a, [it.key]: v }));
+                  toast.show(`${it.t} — ${v ? 'চালু' : 'বন্ধ'}`, v ? 'success' : 'info');
+                }}
                 trackColor={{ true: colors.tealDark, false: '#cbd5e1' }}
                 thumbColor="#fff"
               />
@@ -143,12 +165,16 @@ export function AutopilotScreen({ onClose }: { onClose: () => void }) {
 }
 
 export function ApprovalsScreen({ onClose }: { onClose: () => void }) {
+  const toast = useToast();
   const [pending, setPending] = useState([
     { id: 1, who: 'করিম সাহেব', what: '১০ পিসে ৫% ছাড় দেওয়া', kind: 'amber' as const, time: '৩ মি' },
     { id: 2, who: 'সুমাইয়া আক্তার', what: 'অভিযোগের উত্তর পাঠানো', kind: 'coral' as const, time: '১২ মি' },
     { id: 3, who: 'রহমান ট্রেডার্স', what: 'রিঅর্ডার ৳৯,৬০০', kind: 'teal' as const, time: '২২ মি' },
   ]);
-  const approve = (id: number) => setPending((p) => p.filter((x) => x.id !== id));
+  const resolve = (id: number, label: string) => {
+    setPending((p) => p.filter((x) => x.id !== id));
+    toast.show(label, label.includes('অনুমোদন') ? 'success' : 'info');
+  };
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
       <View style={{ padding: 14, flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: colors.border2 }}>
@@ -180,9 +206,27 @@ export function ApprovalsScreen({ onClose }: { onClose: () => void }) {
               <T weight="b" size={15} style={{ marginTop: 8 }}>{p.what}</T>
               <T size={13} color={colors.ink2} style={{ marginTop: 2 }}>পক্ষে: {p.who}</T>
               <Row gap={8} style={{ marginTop: 12 }}>
-                <Btn kind="teal" label="অনুমোদন" size="sm" full style={{ flex: 1 }} onPress={() => approve(p.id)} iconRight={<Ionicons name="checkmark" size={14} color="#fff" />} />
-                <Btn kind="greyOutline" label="সম্পাদনা" size="sm" />
-                <Btn kind="coralOutline" label="বাতিল" size="sm" onPress={() => approve(p.id)} />
+                <Btn
+                  kind="teal"
+                  label="অনুমোদন"
+                  size="sm"
+                  full
+                  style={{ flex: 1 }}
+                  onPress={() => resolve(p.id, `অনুমোদিত: ${p.what}`)}
+                  iconRight={<Ionicons name="checkmark" size={14} color="#fff" />}
+                />
+                <Btn
+                  kind="greyOutline"
+                  label="সম্পাদনা"
+                  size="sm"
+                  onPress={() => toast.show('সম্পাদনা শীঘ্রই আসছে', 'info')}
+                />
+                <Btn
+                  kind="coralOutline"
+                  label="বাতিল"
+                  size="sm"
+                  onPress={() => resolve(p.id, `বাতিল: ${p.what}`)}
+                />
               </Row>
             </Card>
           ))

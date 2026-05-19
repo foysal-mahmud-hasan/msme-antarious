@@ -4,6 +4,7 @@ import { Pressable, ScrollView, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useResponsive } from '../components/AppFrame';
 import { Btn, Card, Row, T } from '../components/atoms';
+import { useToast } from '../components/Toast';
 import { colors, fonts, radius } from '../theme';
 
 const products = [
@@ -22,6 +23,7 @@ export function QuickSaleScreen({ onClose }: { onClose: () => void }) {
   const [done, setDone] = useState(false);
   const { isDesktop } = useResponsive();
   const productCols = isDesktop ? 3 : 2;
+  const toast = useToast();
 
   const total = products.reduce((s, p) => s + (cart[p.id] || 0) * p.p, 0);
 
@@ -126,6 +128,7 @@ export function QuickSaleScreen({ onClose }: { onClose: () => void }) {
           full
           style={{ marginTop: 12 }}
           iconLeft={<Ionicons name="add" size={16} color={colors.ink2} />}
+          onPress={() => toast.show('পণ্য যোগ করার ফর্ম শীঘ্রই আসছে', 'info')}
         />
 
         <Card style={{ padding: 16, marginTop: 18 }}>
@@ -188,7 +191,16 @@ export function QuickSaleScreen({ onClose }: { onClose: () => void }) {
 
       <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, padding: 14, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: colors.border2 }}>
         <View style={{ width: '100%', maxWidth: 760, alignSelf: 'center' }}>
-          <Btn label="বিক্রি সংরক্ষণ করুন" full onPress={() => setDone(true)} iconRight={<Ionicons name="checkmark-circle" size={18} color="#fff" />} />
+          <Btn
+            label="বিক্রি সংরক্ষণ করুন"
+            full
+            disabled={total === 0}
+            onPress={() => {
+              setDone(true);
+              toast.show(`৳${total.toLocaleString('bn-BD')} বিক্রি সংরক্ষিত হয়েছে`, 'success');
+            }}
+            iconRight={<Ionicons name="checkmark-circle" size={18} color="#fff" />}
+          />
         </View>
       </View>
     </SafeAreaView>

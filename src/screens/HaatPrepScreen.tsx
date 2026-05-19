@@ -4,9 +4,11 @@ import { Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Btn, Card, Chip, Row, SathiBadge, T } from '../components/atoms';
 import { ScreenScroll } from '../components/ScreenContainer';
+import { useToast } from '../components/Toast';
 import { colors } from '../theme';
 
 export function HaatPrepScreen({ onClose }: { onClose: () => void }) {
+  const toast = useToast();
   const [items, setItems] = useState<{ id: string; n: string; q: number; e: string; ok: boolean }[]>([
     { id: '1', n: 'মিনি ফ্যান', q: 20, e: '🌀', ok: true },
     { id: '2', n: 'কুলিং বোতল', q: 30, e: '🧴', ok: true },
@@ -96,7 +98,14 @@ export function HaatPrepScreen({ onClose }: { onClose: () => void }) {
           ))}
         </Card>
 
-        <Btn kind="amberOutline" label="সাথীকে মনে করিয়ে দিতে বলুন" full style={{ marginTop: 14 }} iconLeft={<Ionicons name="notifications-outline" size={16} color={colors.amber} />} />
+        <Btn
+          kind="amberOutline"
+          label="সাথীকে মনে করিয়ে দিতে বলুন"
+          full
+          style={{ marginTop: 14 }}
+          iconLeft={<Ionicons name="notifications-outline" size={16} color={colors.amber} />}
+          onPress={() => toast.show('শুক্রবার সন্ধ্যা ৬টায় মনে করিয়ে দেব', 'success')}
+        />
       </ScreenScroll>
     </SafeAreaView>
   );

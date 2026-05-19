@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Card, Chip, Row, SathiBadge, T } from '../components/atoms';
+import { useToast } from '../components/Toast';
 import { colors, fonts } from '../theme';
 
 type Msg = {
@@ -32,14 +33,22 @@ const quickPrompts = [
   'রিপোর্ট তৈরি করো',
 ];
 
-export function SathiChatScreen({ onClose }: { onClose: () => void }) {
+export function SathiChatScreen({ onClose, prefill }: { onClose: () => void; prefill?: string }) {
   const [msgs, setMsgs] = useState<Msg[]>(initial);
   const [draft, setDraft] = useState('');
   const scroll = useRef<ScrollView>(null);
+  const toast = useToast();
 
   useEffect(() => {
     scroll.current?.scrollToEnd({ animated: true });
   }, [msgs]);
+
+  useEffect(() => {
+    if (prefill && prefill.trim()) {
+      const t = setTimeout(() => send(prefill), 220);
+      return () => clearTimeout(t);
+    }
+  }, [prefill]);
 
   const send = (text: string) => {
     if (!text.trim()) return;
@@ -95,8 +104,15 @@ export function SathiChatScreen({ onClose }: { onClose: () => void }) {
               <T size={12} color={colors.ink2}>সবসময় শুনছে</T>
             </Row>
           </View>
-          <Pressable hitSlop={6} style={styles.iconBtn}>
-            <Ionicons name="ellipsis-vertical" size={18} color={colors.ink} />
+          <Pressable
+            hitSlop={6}
+            style={styles.iconBtn}
+            onPress={() => {
+              setMsgs(initial);
+              toast.show('চ্যাট রিসেট করা হয়েছে', 'info');
+            }}
+          >
+            <Ionicons name="refresh" size={18} color={colors.ink} />
           </Pressable>
         </View>
 

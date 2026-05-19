@@ -1,11 +1,12 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
-import { useResponsive } from '../components/AppFrame';
 import { AppHeader } from '../components/AppHeader';
 import { Avatar, Btn, Card, Chip, Row, SathiBadge, T } from '../components/atoms';
 import { PillTabs } from '../components/PillTabs';
 import { ResponsiveGrid, ScreenScroll } from '../components/ScreenContainer';
+import { useToast } from '../components/Toast';
+import { useActions } from '../state/AppActions';
 import { colors, fonts } from '../theme';
 
 type Tab = 'inbox' | 'leads' | 'orders' | 'bcast';
@@ -32,8 +33,9 @@ const convos: Convo[] = [
   { id: 6, n: 'মুনির খান', pl: 'fb', t: '১ ঘ', preview: 'অর্ডার পেয়েছি, ধন্যবাদ!', badge: 'সমাধান', badgeKind: 'green', avatar: 'ম', col: '#b0e6c5' },
 ];
 
-export function MessagesScreen({ onOpenAgent, onOpenApprovals }: { onOpenAgent: () => void; onOpenApprovals: () => void }) {
-  const [tab, setTab] = useState<Tab>('inbox');
+export function MessagesScreen() {
+  const actions = useActions();
+  const tab = (actions.getSubTab('messages') as Tab) || 'inbox';
   const [open, setOpen] = useState<Convo | null>(null);
 
   return (
@@ -42,8 +44,8 @@ export function MessagesScreen({ onOpenAgent, onOpenApprovals }: { onOpenAgent: 
         title={<T weight="b" size={22}>বার্তা</T>}
         subtitle="সাথী ৭টি পরিচালনা করছে"
         showAgentRunning
-        onAgentPress={onOpenAgent}
-        onNotificationPress={onOpenApprovals}
+        onAgentPress={() => actions.openOverlay('agent')}
+        onNotificationPress={() => actions.openOverlay('approvals')}
         notificationBadge
       />
       <PillTabs<Tab>
@@ -54,7 +56,7 @@ export function MessagesScreen({ onOpenAgent, onOpenApprovals }: { onOpenAgent: 
           { id: 'bcast', label: 'ব্রডকাস্ট' },
         ]}
         active={tab}
-        onChange={setTab}
+        onChange={(t) => actions.setSubTab('messages', t)}
       />
       {tab === 'inbox' && <Inbox onOpen={setOpen} />}
       {tab === 'leads' && <Leads />}
@@ -78,6 +80,13 @@ function Inbox({ onOpen }: { onOpen: (c: Convo) => void }) {
     { id: 'sathi', label: 'সাথী দেখছে', n: 7 },
     { id: 'done', label: 'সমাধান', n: 3 },
   ];
+  const filtered = convos.filter((c) => {
+    if (filter === 'all') return true;
+    if (filter === 'you') return c.esc;
+    if (filter === 'sathi') return c.sathi;
+    if (filter === 'done') return c.badgeKind === 'green';
+    return true;
+  });
   return (
     <ScreenScroll>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingBottom: 4 }}>
@@ -100,54 +109,63 @@ function Inbox({ onOpen }: { onOpen: (c: Convo) => void }) {
       </ScrollView>
 
       <Card style={{ marginTop: 14, padding: 4 }}>
-        {convos.map((c, i) => (
-          <Pressable
-            key={c.id}
-            onPress={() => onOpen(c)}
-            style={{
-              flexDirection: 'row',
-              gap: 12,
-              alignItems: 'center',
-              padding: 12,
-              borderTopWidth: i ? 1 : 0,
-              borderTopColor: colors.border2,
-              borderLeftWidth: 3,
-              borderLeftColor: c.esc ? colors.amber : c.sathi ? colors.teal : 'transparent',
-              marginLeft: c.esc || c.sathi ? -4 : 0,
-              opacity: c.sathi ? 0.92 : 1,
-            }}
-          >
-            <View>
-              <Avatar text={c.avatar} bg={c.col} color={colors.ink} />
-              <View style={styles.platformDot}>
-                {c.pl === 'fb' ? (
-                  <MaterialCommunityIcons name="facebook" size={12} color="#1877F2" />
-                ) : (
-                  <MaterialCommunityIcons name="whatsapp" size={12} color="#25D366" />
-                )}
+        {filtered.length === 0 ? (
+          <View style={{ padding: 40, alignItems: 'center' }}>
+            <T size={28}>📭</T>
+            <T size={13} color={colors.ink2} style={{ marginTop: 8 }}>এই ফিল্টারে কিছু নেই</T>
+          </View>
+        ) : (
+          filtered.map((c, i) => (
+            <Pressable
+              key={c.id}
+              onPress={() => onOpen(c)}
+              style={{
+                flexDirection: 'row',
+                gap: 12,
+                alignItems: 'center',
+                padding: 12,
+                borderTopWidth: i ? 1 : 0,
+                borderTopColor: colors.border2,
+                borderLeftWidth: 3,
+                borderLeftColor: c.esc ? colors.amber : c.sathi ? colors.teal : 'transparent',
+                marginLeft: c.esc || c.sathi ? -4 : 0,
+                opacity: c.sathi ? 0.92 : 1,
+              }}
+            >
+              <View>
+                <Avatar text={c.avatar} bg={c.col} color={colors.ink} />
+                <View style={styles.platformDot}>
+                  {c.pl === 'fb' ? (
+                    <MaterialCommunityIcons name="facebook" size={12} color="#1877F2" />
+                  ) : (
+                    <MaterialCommunityIcons name="whatsapp" size={12} color="#25D366" />
+                  )}
+                </View>
               </View>
-            </View>
-            <View style={{ flex: 1, minWidth: 0 }}>
-              <Row style={{ justifyContent: 'space-between' }}>
-                <T weight="b" size={14.5}>{c.n}</T>
-                <T size={12} color={colors.ink2}>{c.t}</T>
-              </Row>
-              <Row gap={6} style={{ marginTop: 3 }}>
-                {c.sathi ? <SathiBadge size={16} /> : null}
-                <T size={13} color={colors.ink2} numberOfLines={1} style={{ flex: 1 }}>
-                  {c.preview}
-                </T>
-              </Row>
-            </View>
-            <Chip kind={c.badgeKind} size={11}>{c.badge}</Chip>
-          </Pressable>
-        ))}
+              <View style={{ flex: 1, minWidth: 0 }}>
+                <Row style={{ justifyContent: 'space-between' }}>
+                  <T weight="b" size={14.5}>{c.n}</T>
+                  <T size={12} color={colors.ink2}>{c.t}</T>
+                </Row>
+                <Row gap={6} style={{ marginTop: 3 }}>
+                  {c.sathi ? <SathiBadge size={16} /> : null}
+                  <T size={13} color={colors.ink2} numberOfLines={1} style={{ flex: 1 }}>
+                    {c.preview}
+                  </T>
+                </Row>
+              </View>
+              <Chip kind={c.badgeKind} size={11}>{c.badge}</Chip>
+            </Pressable>
+          ))
+        )}
       </Card>
     </ScreenScroll>
   );
 }
 
 function Leads() {
+  const actions = useActions();
+  const toast = useToast();
   const leads = [
     { n: 'করিম সাহেব', interest: 'মিনি ফ্যান × ১০', score: 'গরম', kind: 'coral' as const, time: '৩৫ মি বাকি' },
     { n: 'নাজমা পারভীন', interest: 'কুলিং কুশন', score: 'মাঝারি', kind: 'amber' as const, time: '২ ঘ' },
@@ -166,21 +184,25 @@ function Leads() {
       </Card>
       <Card style={{ padding: 4 }}>
         {leads.map((l, i) => (
-          <Row
+          <Pressable
             key={l.n}
-            gap={12}
-            style={{ padding: 14, borderTopWidth: i ? 1 : 0, borderTopColor: colors.border2 }}
+            onPress={() => toast.show(`${l.n}-কে ফলো-আপ মেসেজ পাঠানো হয়েছে`, 'success')}
           >
-            <Avatar text={l.n[0]} bg={colors.saffronSoft} color={colors.saffron} />
-            <View style={{ flex: 1 }}>
-              <T weight="b" size={14.5}>{l.n}</T>
-              <T size={12.5} color={colors.ink2}>{l.interest}</T>
-            </View>
-            <View style={{ alignItems: 'flex-end', gap: 4 }}>
-              <Chip kind={l.kind} size={11}>{l.score}</Chip>
-              <T size={11} color={colors.ink2}>{l.time}</T>
-            </View>
-          </Row>
+            <Row
+              gap={12}
+              style={{ padding: 14, borderTopWidth: i ? 1 : 0, borderTopColor: colors.border2 }}
+            >
+              <Avatar text={l.n[0]} bg={colors.saffronSoft} color={colors.saffron} />
+              <View style={{ flex: 1 }}>
+                <T weight="b" size={14.5}>{l.n}</T>
+                <T size={12.5} color={colors.ink2}>{l.interest}</T>
+              </View>
+              <View style={{ alignItems: 'flex-end', gap: 4 }}>
+                <Chip kind={l.kind} size={11}>{l.score}</Chip>
+                <T size={11} color={colors.ink2}>{l.time}</T>
+              </View>
+            </Row>
+          </Pressable>
         ))}
       </Card>
     </ScreenScroll>
@@ -188,6 +210,7 @@ function Leads() {
 }
 
 function Orders() {
+  const toast = useToast();
   const orders = [
     { id: 'অর্ডার-৩৪২', cust: 'করিম সাহেব', items: '৩ পণ্য', t: '৳২,৭৫০', status: 'প্যাকিং', kind: 'amber' as const },
     { id: 'অর্ডার-৩৪১', cust: 'নাসরিন বেগম', items: '১ পণ্য', t: '৳৮৫০', status: 'পথে', kind: 'teal' as const },
@@ -197,25 +220,26 @@ function Orders() {
   return (
     <ScreenScroll>
       {orders.map((o) => (
-        <Card key={o.id} style={{ padding: 14, marginBottom: 10 }}>
-          <Row style={{ justifyContent: 'space-between' }}>
-            <T weight="b" size={14}>{o.id}</T>
-            <Chip kind={o.kind} size={11}>{o.status}</Chip>
-          </Row>
-          <T size={13} color={colors.ink2} style={{ marginTop: 4 }}>{o.cust} · {o.items}</T>
-          <Row style={{ justifyContent: 'space-between', marginTop: 10 }}>
-            <T weight="b" size={18} color={colors.green}>{o.t}</T>
-            <Pressable hitSlop={6}>
+        <Pressable key={o.id} onPress={() => toast.show(`${o.id} — ${o.cust} (${o.status})`, 'info')}>
+          <Card style={{ padding: 14, marginBottom: 10 }}>
+            <Row style={{ justifyContent: 'space-between' }}>
+              <T weight="b" size={14}>{o.id}</T>
+              <Chip kind={o.kind} size={11}>{o.status}</Chip>
+            </Row>
+            <T size={13} color={colors.ink2} style={{ marginTop: 4 }}>{o.cust} · {o.items}</T>
+            <Row style={{ justifyContent: 'space-between', marginTop: 10 }}>
+              <T weight="b" size={18} color={colors.green}>{o.t}</T>
               <T weight="b" size={13} color={colors.tealDark}>বিস্তারিত →</T>
-            </Pressable>
-          </Row>
-        </Card>
+            </Row>
+          </Card>
+        </Pressable>
       ))}
     </ScreenScroll>
   );
 }
 
 function Broadcast() {
+  const toast = useToast();
   return (
     <ScreenScroll>
       <Card style={{ padding: 16, marginBottom: 12 }}>
@@ -228,8 +252,20 @@ function Broadcast() {
           ৩ মাসে যারা গরমকালীন পণ্য কিনেছেন · WhatsApp + Facebook
         </T>
         <Row gap={8} style={{ marginTop: 14 }}>
-          <Btn kind="teal" label="অনুমোদন দিন" size="sm" full style={{ flex: 1 }} />
-          <Btn kind="greyOutline" label="সম্পাদনা" size="sm" />
+          <Btn
+            kind="teal"
+            label="অনুমোদন দিন"
+            size="sm"
+            full
+            style={{ flex: 1 }}
+            onPress={() => toast.show('৩৪ জনকে ব্রডকাস্ট পাঠানো হয়েছে ✓', 'success')}
+          />
+          <Btn
+            kind="greyOutline"
+            label="সম্পাদনা"
+            size="sm"
+            onPress={() => toast.show('সম্পাদনা শীঘ্রই আসছে', 'info')}
+          />
         </Row>
       </Card>
       <Card style={{ padding: 16, marginBottom: 12 }}>
@@ -238,15 +274,18 @@ function Broadcast() {
           { n: 'ঈদ অফার', r: '৯২ জন', t: '১৪ এপ্রিল' },
           { n: 'নতুন স্টক', r: '৪১ জন', t: '২ এপ্রিল' },
         ].map((c, i) => (
-          <Row key={c.n} gap={12} style={{ marginTop: 12, paddingTop: 12, borderTopWidth: i ? 1 : 0, borderTopColor: colors.border2 }}>
-            <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: colors.saffronSoft, alignItems: 'center', justifyContent: 'center' }}>
-              <Ionicons name="megaphone-outline" size={18} color={colors.saffron} />
-            </View>
-            <View style={{ flex: 1 }}>
-              <T weight="s" size={14}>{c.n}</T>
-              <T size={12} color={colors.ink2}>{c.t} · {c.r} পেয়েছে</T>
-            </View>
-          </Row>
+          <Pressable key={c.n} onPress={() => toast.show(`${c.n} — ${c.r} পেয়েছে`, 'info')}>
+            <Row gap={12} style={{ marginTop: 12, paddingTop: 12, borderTopWidth: i ? 1 : 0, borderTopColor: colors.border2 }}>
+              <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: colors.saffronSoft, alignItems: 'center', justifyContent: 'center' }}>
+                <Ionicons name="megaphone-outline" size={18} color={colors.saffron} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <T weight="s" size={14}>{c.n}</T>
+                <T size={12} color={colors.ink2}>{c.t} · {c.r} পেয়েছে</T>
+              </View>
+              <Ionicons name="chevron-forward" size={16} color={colors.ink2} />
+            </Row>
+          </Pressable>
         ))}
       </Card>
     </ScreenScroll>
@@ -254,6 +293,14 @@ function Broadcast() {
 }
 
 function Conversation({ c, onClose }: { c: Convo; onClose: () => void }) {
+  const toast = useToast();
+  const [composer, setComposer] = useState('');
+  const [bubbles, setBubbles] = useState([
+    { who: 'other' as const, text: 'আপু, মিনি ফ্যান এর দাম কত?' },
+    { who: 'me' as const, text: '৳৮৫০ প্রতি পিস। ভাল কোয়ালিটি।' },
+    { who: 'other' as const, text: 'দাম কমানো যাবে? ১০টা নেব। ৩৫ দিনের মধ্যে বিক্রি করব ইনশাআল্লাহ্‌' },
+  ]);
+  const [suggestionSent, setSuggestionSent] = useState(false);
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <View style={styles.convoHeader}>
@@ -270,40 +317,86 @@ function Conversation({ c, onClose }: { c: Convo; onClose: () => void }) {
             {c.pl === 'fb' ? 'Facebook' : 'WhatsApp'} · ঢাকা · ৮টি অর্ডার
           </T>
         </View>
+        <Pressable hitSlop={6} onPress={() => toast.show('আরও অপশন শীঘ্রই আসছে', 'info')} style={styles.iconBtn}>
+          <Ionicons name="ellipsis-vertical" size={18} color={colors.ink} />
+        </Pressable>
       </View>
 
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 14, gap: 10 }}>
-        <Bubble who="other">আপু, মিনি ফ্যান এর দাম কত?</Bubble>
-        <Bubble who="me">৳৮৫০ প্রতি পিস। ভাল কোয়ালিটি।</Bubble>
-        <Bubble who="other">দাম কমানো যাবে? ১০টা নেব। ৩৫ দিনের মধ্যে বিক্রি করব ইনশাআল্লাহ্‌</Bubble>
-        <Row gap={8} style={{ justifyContent: 'center', marginVertical: 8 }}>
-          <View style={{ flex: 1, height: 1, backgroundColor: colors.border2 }} />
-          <T size={12} color={colors.ink2}>সাথী চিন্তা করছে</T>
-          <View style={{ flex: 1, height: 1, backgroundColor: colors.border2 }} />
-        </Row>
+        {bubbles.map((b, i) => (
+          <Bubble key={i} who={b.who}>{b.text}</Bubble>
+        ))}
+        {!suggestionSent ? (
+          <Row gap={8} style={{ justifyContent: 'center', marginVertical: 8 }}>
+            <View style={{ flex: 1, height: 1, backgroundColor: colors.border2 }} />
+            <T size={12} color={colors.ink2}>সাথী চিন্তা করছে</T>
+            <View style={{ flex: 1, height: 1, backgroundColor: colors.border2 }} />
+          </Row>
+        ) : null}
       </ScrollView>
 
-      <View style={{ padding: 12 }}>
-        <Card tinted={colors.tealSoft} style={{ padding: 14, borderColor: 'rgba(46,196,182,0.3)', borderWidth: 1 }}>
-          <Row gap={8}>
-            <SathiBadge />
-            <T weight="b" size={13.5} color={colors.tealDark}>সাথীর পরামর্শ</T>
-          </Row>
-          <T size={14.5} style={{ marginTop: 8, lineHeight: 21 }}>
-            ১০ পিসে <T weight="b" size={14.5}>৫% ছাড় (৳৪২.৫০)</T> দিন — এখনও <T weight="b" size={14.5} color={colors.green}>৳৩২০/পিস লাভ</T> থাকবে। করিম ৮ বার অর্ডার দিয়েছেন।
-          </T>
-          <Row gap={8} style={{ marginTop: 12 }}>
-            <Btn kind="teal" label="পাঠান" size="sm" full style={{ flex: 1 }} iconRight={<Ionicons name="checkmark" size={14} color="#fff" />} />
-            <Btn kind="greyOutline" label="পরিবর্তন" size="sm" />
-          </Row>
-        </Card>
-      </View>
+      {!suggestionSent ? (
+        <View style={{ padding: 12 }}>
+          <Card tinted={colors.tealSoft} style={{ padding: 14, borderColor: 'rgba(46,196,182,0.3)', borderWidth: 1 }}>
+            <Row gap={8}>
+              <SathiBadge />
+              <T weight="b" size={13.5} color={colors.tealDark}>সাথীর পরামর্শ</T>
+            </Row>
+            <T size={14.5} style={{ marginTop: 8, lineHeight: 21 }}>
+              ১০ পিসে <T weight="b" size={14.5}>৫% ছাড় (৳৪২.৫০)</T> দিন — এখনও <T weight="b" size={14.5} color={colors.green}>৳৩২০/পিস লাভ</T> থাকবে।
+            </T>
+            <Row gap={8} style={{ marginTop: 12 }}>
+              <Btn
+                kind="teal"
+                label="পাঠান"
+                size="sm"
+                full
+                style={{ flex: 1 }}
+                iconRight={<Ionicons name="checkmark" size={14} color="#fff" />}
+                onPress={() => {
+                  setBubbles((b) => [...b, { who: 'me', text: '১০ পিসে ৫% ছাড় দিচ্ছি — ৳৮০৭.৫০/পিস। কেমন?' }]);
+                  setSuggestionSent(true);
+                  toast.show('সাথীর প্রস্তাব পাঠানো হয়েছে ✓', 'success');
+                }}
+              />
+              <Btn
+                kind="greyOutline"
+                label="পরিবর্তন"
+                size="sm"
+                onPress={() => toast.show('আপনি নিজে লিখতে পারেন', 'info')}
+              />
+            </Row>
+          </Card>
+        </View>
+      ) : null}
 
       <View style={styles.composer}>
         <View style={styles.input}>
-          <TextInput placeholder="বার্তা লিখুন…" placeholderTextColor={colors.ink2} style={{ flex: 1, fontFamily: fonts.medium }} />
-          <Pressable style={styles.micBtn}>
-            <Ionicons name="mic" size={18} color="#fff" />
+          <TextInput
+            placeholder="বার্তা লিখুন…"
+            placeholderTextColor={colors.ink2}
+            value={composer}
+            onChangeText={setComposer}
+            onSubmitEditing={() => {
+              if (!composer.trim()) return;
+              setBubbles((b) => [...b, { who: 'me', text: composer }]);
+              setComposer('');
+            }}
+            style={{ flex: 1, fontFamily: fonts.medium, color: colors.ink }}
+            returnKeyType="send"
+          />
+          <Pressable
+            style={styles.micBtn}
+            onPress={() => {
+              if (composer.trim()) {
+                setBubbles((b) => [...b, { who: 'me', text: composer }]);
+                setComposer('');
+              } else {
+                toast.show('ভয়েস ইনপুট শীঘ্রই আসছে', 'info');
+              }
+            }}
+          >
+            <Ionicons name={composer.trim() ? 'send' : 'mic'} size={18} color="#fff" />
           </Pressable>
         </View>
       </View>

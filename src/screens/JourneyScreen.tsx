@@ -1,9 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
-import React from 'react';
+import React, { useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Btn, Card, Chip, Row, SathiBadge, T } from '../components/atoms';
 import { ScreenScroll } from '../components/ScreenContainer';
+import { useToast } from '../components/Toast';
+import { useActions } from '../state/AppActions';
 import { colors } from '../theme';
 
 const steps = [
@@ -16,6 +18,9 @@ const steps = [
 ];
 
 export function JourneyScreen({ onClose }: { onClose: () => void }) {
+  const toast = useToast();
+  const actions = useActions();
+  const [completed, setCompleted] = useState(1);
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
       <View style={{ backgroundColor: '#fff', padding: 14, borderBottomWidth: 1, borderBottomColor: colors.border2 }}>
@@ -27,7 +32,7 @@ export function JourneyScreen({ onClose }: { onClose: () => void }) {
             <T weight="b" size={16}>ডিজিটাল যাত্রা</T>
             <T size={12} color={colors.ink2}>ধাপে ধাপে অনলাইনে যান</T>
           </View>
-          <Chip kind="teal" size={11}>১ / ৬</Chip>
+          <Chip kind="teal" size={11}>{completed} / ৬</Chip>
         </Row>
       </View>
 
@@ -76,7 +81,18 @@ export function JourneyScreen({ onClose }: { onClose: () => void }) {
                 {s.done ? <Chip kind="green" size={10}>সম্পন্ন</Chip> : s.current ? <Chip kind="teal" size={10}>চলমান</Chip> : null}
               </Row>
               {s.current ? (
-                <Btn kind="teal" label="এখন শুরু করুন" full size="sm" style={{ marginTop: 12 }} iconRight={<Ionicons name="arrow-forward" size={14} color="#fff" />} />
+                <Btn
+                  kind="teal"
+                  label="এখন শুরু করুন"
+                  full
+                  size="sm"
+                  style={{ marginTop: 12 }}
+                  iconRight={<Ionicons name="arrow-forward" size={14} color="#fff" />}
+                  onPress={() => {
+                    toast.show(`"${s.t}" — সাথী আপনাকে গাইড করছে`, 'success');
+                    actions.openOverlay('sathi', `${s.t} শুরু করতে চাই`);
+                  }}
+                />
               ) : null}
             </Card>
           </Row>

@@ -1,11 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import { Pressable, ScrollView, View } from 'react-native';
+import { Pressable, ScrollView, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../auth/AuthContext';
 import { useResponsive } from '../components/AppFrame';
 import { Avatar, Btn, Card, Chip, Row, SathiBadge, T } from '../components/atoms';
-import { colors } from '../theme';
+import { useToast } from '../components/Toast';
+import { useActions } from '../state/AppActions';
+import { colors, fonts } from '../theme';
 
 type Row = {
   n: string;
@@ -33,9 +35,11 @@ const dotColor = (k: 'g' | 'a' | 'r') => (k === 'g' ? colors.green : k === 'a' ?
 
 export function POPortalScreen({ onClose }: { onClose: () => void }) {
   const { user } = useAuth();
-  const { isDesktop, isTablet } = useResponsive();
+  const { isDesktop } = useResponsive();
+  const toast = useToast();
   const [openId, setOpenId] = useState<number | null>(null);
   const [tab, setTab] = useState<'overview' | 'list' | 'alerts'>('overview');
+  const [query, setQuery] = useState('');
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#f1f5f9' }}>
@@ -56,7 +60,13 @@ export function POPortalScreen({ onClose }: { onClose: () => void }) {
           <Row gap={14}>
             <View style={styles.searchInput}>
               <Ionicons name="search" size={14} color={colors.ink2} />
-              <T size={13} color={colors.ink2}>খুঁজুন…</T>
+              <TextInput
+                placeholder="খুঁজুন…"
+                placeholderTextColor={colors.ink2}
+                value={query}
+                onChangeText={setQuery}
+                style={{ flex: 1, fontFamily: fonts.medium, fontSize: 13, color: colors.ink, padding: 0 }}
+              />
             </View>
             <Row gap={10}>
               <Avatar text={user?.avatarInitial ?? 'মা'} bg="#1d4ed8" />
@@ -115,8 +125,8 @@ export function POPortalScreen({ onClose }: { onClose: () => void }) {
             ))}
           </View>
           <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 28, paddingBottom: 60 }}>
-            {tab === 'overview' && <OverviewDesktop />}
-            {tab === 'list' && <BeneficiariesDesktop openId={openId} setOpenId={setOpenId} />}
+            {tab === 'overview' && <OverviewDesktop query={query} />}
+            {tab === 'list' && <BeneficiariesDesktop openId={openId} setOpenId={setOpenId} query={query} />}
             {tab === 'alerts' && <AlertsDesktop />}
           </ScrollView>
         </Row>
@@ -133,7 +143,16 @@ export function POPortalScreen({ onClose }: { onClose: () => void }) {
 
 /* ────────────── Desktop layouts ────────────── */
 
-function OverviewDesktop() {
+function filterRows(query: string) {
+  const q = query.trim().toLowerCase();
+  if (!q) return rows;
+  return rows.filter((r) => r.n.toLowerCase().includes(q) || r.d.toLowerCase().includes(q) || r.b.toLowerCase().includes(q));
+}
+
+function OverviewDesktop({ query }: { query: string }) {
+  const filtered = filterRows(query);
+  const toast = useToast();
+  const actions = useActions();
   return (
     <View style={{ gap: 22 }}>
       <Row gap={16}>
@@ -154,12 +173,12 @@ function OverviewDesktop() {
       <Row gap={20} style={{ alignItems: 'stretch' }}>
         <View style={[poCard, { flex: 1.7, padding: 0 }]}>
           <View style={{ padding: 16, borderBottomWidth: 1, borderBottomColor: '#e6e8ec', flexDirection: 'row', justifyContent: 'space-between' }}>
-            <T weight="b" size={15}>বেনিফিশিয়ারি (৮ এর মধ্যে)</T>
+            <T weight="b" size={15}>বেনিফিশিয়ারি ({filtered.length} এর মধ্যে)</T>
             <Row gap={8}>
-              <Pressable style={chipBtn}>
+              <Pressable style={chipBtn} onPress={() => toast.show('জেলা ফিল্টার শীঘ্রই আসছে', 'info')}>
                 <T size={12} color="#475569">সব জেলা</T>
               </Pressable>
-              <Pressable style={chipBtn}>
+              <Pressable style={chipBtn} onPress={() => toast.show('CSV রপ্তানি শুরু হয়েছে', 'success')}>
                 <T size={12} color="#475569">রপ্তানি</T>
               </Pressable>
             </Row>
@@ -169,8 +188,14 @@ function OverviewDesktop() {
               <T key={h} size={11.5} weight="b" color="#64748b" style={{ flex: i === 6 ? 1.4 : 1, textAlign: i === 3 ? 'right' : 'left' }}>{h}</T>
             ))}
           </View>
-          {rows.slice(0, 8).map((r, i) => (
-            <View key={i} style={{ flexDirection: 'row', padding: 14, paddingVertical: 12, borderBottomWidth: i < 7 ? 1 : 0, borderBottomColor: '#f1f5f9' }}>
+          {filtered.length === 0 ? (
+            <View style={{ padding: 40, alignItems: 'center' }}>
+              <T size={26}>🔍</T>
+              <T size={13} color={colors.ink2} style={{ marginTop: 8 }}>"{query}" এর জন্য কিছু খুঁজে পাওয়া যায়নি</T>
+            </View>
+          ) : null}
+          {filtered.slice(0, 8).map((r, i) => (
+            <View key={i} style={{ flexDirection: 'row', padding: 14, paddingVertical: 12, borderBottomWidth: i < filtered.slice(0, 8).length - 1 ? 1 : 0, borderBottomColor: '#f1f5f9' }}>
               <T weight="s" size={13.5} style={{ flex: 1 }}>{r.n}</T>
               <T size={13} color="#475569" style={{ flex: 1 }}>{r.d}</T>
               <T size={13} color="#475569" style={{ flex: 1 }}>{r.b}</T>
@@ -223,7 +248,10 @@ function OverviewDesktop() {
             <T size={13.5} style={{ marginTop: 8, lineHeight: 21, color: '#1e293b' }}>
               এই সপ্তাহে <T weight="b">৩১ জন বেনিফিশিয়ারি</T> ঋণ-যোগ্য — পরবর্তী চক্রে গড়ে ৳৪৫,০০০ ঋণ দেওয়া যেতে পারে। <T weight="b">৫ জন</T> মনোযোগ প্রয়োজন।
             </T>
-            <Pressable style={{ marginTop: 12, paddingHorizontal: 14, paddingVertical: 8, alignSelf: 'flex-start', backgroundColor: '#1d4ed8', borderRadius: 6 }}>
+            <Pressable
+              style={{ marginTop: 12, paddingHorizontal: 14, paddingVertical: 8, alignSelf: 'flex-start', backgroundColor: '#1d4ed8', borderRadius: 6 }}
+              onPress={() => actions.openOverlay('sathi', 'এই সপ্তাহের সাপ্তাহিক ব্রিফ দেখাও')}
+            >
               <T size={12.5} weight="b" color="#fff">সম্পূর্ণ ব্রিফ পড়ুন →</T>
             </Pressable>
           </View>
@@ -233,7 +261,8 @@ function OverviewDesktop() {
   );
 }
 
-function BeneficiariesDesktop({ openId, setOpenId }: { openId: number | null; setOpenId: (n: number | null) => void }) {
+function BeneficiariesDesktop({ openId, setOpenId, query }: { openId: number | null; setOpenId: (n: number | null) => void; query: string }) {
+  const filtered = filterRows(query);
   return (
     <View style={{ gap: 16 }}>
       <View style={[poCard, { padding: 0 }]}>
@@ -242,7 +271,13 @@ function BeneficiariesDesktop({ openId, setOpenId }: { openId: number | null; se
             <T key={h} size={11.5} weight="b" color="#64748b" style={{ flex: i === 6 ? 1.4 : 1, textAlign: i === 3 ? 'right' : 'left' }}>{h}</T>
           ))}
         </View>
-        {rows.map((r, i) => {
+        {filtered.length === 0 ? (
+          <View style={{ padding: 40, alignItems: 'center' }}>
+            <T size={26}>🔍</T>
+            <T size={13} color={colors.ink2} style={{ marginTop: 8 }}>"{query}" এর জন্য কিছু খুঁজে পাওয়া যায়নি</T>
+          </View>
+        ) : null}
+        {filtered.map((r, i) => {
           const open = openId === i;
           return (
             <View key={i}>
@@ -280,6 +315,7 @@ function BeneficiariesDesktop({ openId, setOpenId }: { openId: number | null; se
 }
 
 function AlertsDesktop() {
+  const toast = useToast();
   const items = [
     { n: 'রফিকুল ইসলাম', d: 'রাজস্ব ৪% কমেছে গত ২ মাসে', kind: 'coral' as const, e: '📉' },
     { n: 'হাসিনা পারভীন', d: '১৪ দিন বিক্রি লেখেননি', kind: 'amber' as const, e: '⏰' },
@@ -304,7 +340,14 @@ function AlertsDesktop() {
               </View>
               <Chip kind={it.kind} size={10}>{it.kind === 'coral' ? 'উচ্চ' : 'মাঝারি'}</Chip>
             </Row>
-            <Btn kind="tealOutline" label="দেখা করার সময় নির্ধারণ" full size="sm" style={{ marginTop: 12 }} />
+            <Btn
+              kind="tealOutline"
+              label="দেখা করার সময় নির্ধারণ"
+              full
+              size="sm"
+              style={{ marginTop: 12 }}
+              onPress={() => toast.show(`${it.n}-এর সাথে দেখা করার অনুরোধ পাঠানো হয়েছে`, 'success')}
+            />
           </Card>
         ))}
       </Row>
@@ -409,6 +452,7 @@ function BeneficiariesMobile({ openId, setOpenId }: { openId: number | null; set
 }
 
 function AlertsMobile() {
+  const toast = useToast();
   const items = [
     { n: 'রফিকুল ইসলাম', d: 'রাজস্ব ৪% কমেছে গত ২ মাসে', kind: 'coral' as const, e: '📉' },
     { n: 'হাসিনা পারভীন', d: '১৪ দিন বিক্রি লেখেননি', kind: 'amber' as const, e: '⏰' },
@@ -432,7 +476,14 @@ function AlertsMobile() {
             </View>
             <Chip kind={it.kind} size={10}>{it.kind === 'coral' ? 'উচ্চ' : 'মাঝারি'}</Chip>
           </Row>
-          <Btn kind="tealOutline" label="দেখা করার সময় নির্ধারণ" full size="sm" style={{ marginTop: 12 }} />
+          <Btn
+            kind="tealOutline"
+            label="দেখা করার সময় নির্ধারণ"
+            full
+            size="sm"
+            style={{ marginTop: 12 }}
+            onPress={() => toast.show(`${it.n}-এর সাথে দেখা করার অনুরোধ পাঠানো হয়েছে`, 'success')}
+          />
         </Card>
       ))}
     </View>
@@ -440,6 +491,7 @@ function AlertsMobile() {
 }
 
 function DetailPanel({ r }: { r: Row }) {
+  const toast = useToast();
   return (
     <View style={{ padding: 18, backgroundColor: '#f8fafc', borderTopWidth: 1, borderTopColor: '#e6e8ec' }}>
       <T size={11} color="#64748b" weight="b" style={{ letterSpacing: 0.5 }}>বেনিফিশিয়ারি প্রোফাইল</T>
@@ -448,7 +500,12 @@ function DetailPanel({ r }: { r: Row }) {
           <T weight="b" size={22}>{r.n}</T>
           <T size={12.5} color="#475569">{r.b} · {r.d} · যোগদান: জানুয়ারি ২০২৪</T>
         </View>
-        <Btn label="PDF ডাউনলোড" style={{ backgroundColor: '#1d4ed8' }} iconLeft={<Ionicons name="download" size={16} color="#fff" />} />
+        <Btn
+          label="PDF ডাউনলোড"
+          style={{ backgroundColor: '#1d4ed8' }}
+          iconLeft={<Ionicons name="download" size={16} color="#fff" />}
+          onPress={() => toast.show(`${r.n}-এর প্রোফাইল PDF তৈরি হচ্ছে…`, 'success')}
+        />
       </Row>
       <Row gap={12} style={{ marginTop: 14, flexWrap: 'wrap' }}>
         {[
