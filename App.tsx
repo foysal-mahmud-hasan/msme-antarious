@@ -1,20 +1,73 @@
+import {
+  HindSiliguri_400Regular,
+  HindSiliguri_500Medium,
+  HindSiliguri_600SemiBold,
+  HindSiliguri_700Bold,
+} from '@expo-google-fonts/hind-siliguri';
+import { NavigationContainer } from '@react-navigation/native';
+import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React from 'react';
+import { ActivityIndicator, View } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { AuthProvider, useAuth } from './src/auth/AuthContext';
+import { LoginScreen } from './src/auth/LoginScreen';
+import { AppFrame } from './src/components/AppFrame';
+import { T } from './src/components/atoms';
+import { Shell } from './src/navigation/Shell';
+import { colors } from './src/theme';
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+function Gate() {
+  const { user, loading } = useAuth();
+  if (loading) {
+    return (
+      <View style={{ flex: 1, backgroundColor: colors.bg, alignItems: 'center', justifyContent: 'center' }}>
+        <View
+          style={{
+            width: 80,
+            height: 80,
+            borderRadius: 24,
+            backgroundColor: colors.saffron,
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: 16,
+          }}
+        >
+          <T weight="b" color="#fff" size={48}>উ</T>
+        </View>
+        <ActivityIndicator color={colors.saffron} />
+      </View>
+    );
+  }
+  return user ? <Shell /> : <LoginScreen />;
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default function App() {
+  const [loaded] = useFonts({
+    HindSiliguri_400Regular,
+    HindSiliguri_500Medium,
+    HindSiliguri_600SemiBold,
+    HindSiliguri_700Bold,
+  });
+
+  if (!loaded) {
+    return (
+      <View style={{ flex: 1, backgroundColor: colors.bg, alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator color={colors.saffron} />
+      </View>
+    );
+  }
+
+  return (
+    <SafeAreaProvider>
+      <AuthProvider>
+        <NavigationContainer>
+          <StatusBar style="dark" />
+          <AppFrame>
+            <Gate />
+          </AppFrame>
+        </NavigationContainer>
+      </AuthProvider>
+    </SafeAreaProvider>
+  );
+}

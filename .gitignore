@@ -1,41 +1,110 @@
 # Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
 
-# dependencies
+# ───────── dependencies ─────────
 node_modules/
+.pnp/
+.pnp.js
+.yarn/
+.yarn-integrity
+package-lock.json.bak
 
-# Expo
+# ───────── Expo / Metro ─────────
 .expo/
+.expo-shared/
 dist/
 web-build/
 expo-env.d.ts
+.metro-health-check*
+.metro-cache/
+.bundle/
 
-# Native
-.kotlin/
+# Managed workflow: generated native projects (uncomment if you prebuild)
+/ios
+/android
+
+# Native build artifacts
 *.orig.*
 *.jks
 *.p8
 *.p12
 *.key
 *.mobileprovision
+*.keystore
+.kotlin/
 
-# Metro
-.metro-health-check*
+# ───────── React Native / Hermes ─────────
+*.hbc
+hermes-bytecode/
 
-# debug
+# ───────── Build outputs ─────────
+build/
+out/
+.next/
+.cache/
+.parcel-cache/
+
+# ───────── Logs ─────────
 npm-debug.*
 yarn-debug.*
 yarn-error.*
+pnpm-debug.*
+*.log
+logs/
+lerna-debug.log*
 
-# macOS
-.DS_Store
-*.pem
-
-# local env files
+# ───────── Environment / secrets ─────────
+.env
+.env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production
+.env.production.local
 .env*.local
+*.pem
+secrets.json
+credentials.json
+google-services.json
+GoogleService-Info.plist
 
-# typescript
+# Keep example env in source control
+!.env.example
+
+# ───────── TypeScript ─────────
 *.tsbuildinfo
 
-# generated native folders
-/ios
-/android
+# ───────── Testing / Coverage ─────────
+coverage/
+.nyc_output/
+*.lcov
+
+# ───────── Editor / IDE ─────────
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+*.swp
+*.swo
+*~
+.history/
+.zed/
+
+# ───────── OS junk ─────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ───────── EAS / Expo build ─────────
+.eas/
+eas-build/
+
+# ───────── Local scratch ─────────
+tmp/
+.tmp/
+*.local
