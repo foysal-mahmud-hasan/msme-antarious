@@ -15,17 +15,17 @@ export type User = {
 };
 
 const USERS: Record<string, { user: User; password: string }> = {
-  joy: {
+  asif: {
     password: '1234',
     user: {
-      id: 'u-joy',
-      username: 'joy',
-      fullName: 'Joy Rahman',
-      bengaliName: 'জয় রহমান',
+      id: 'u-asif',
+      username: 'asif',
+      fullName: 'Asif Hasan',
+      bengaliName: 'আসিফ হাসান',
       role: 'admin',
       hasPOPortal: true,
       avatarColor: '#1d4ed8',
-      avatarInitial: 'জ',
+      avatarInitial: 'আ',
     },
   },
   foysal: {
@@ -33,8 +33,8 @@ const USERS: Record<string, { user: User; password: string }> = {
     user: {
       id: 'u-foysal',
       username: 'foysal',
-      fullName: 'Foysal Ahmed',
-      bengaliName: 'ফয়সাল আহমেদ',
+      fullName: 'Foysal Mahmud',
+      bengaliName: 'ফয়সাল মাহমুদ',
       role: 'general',
       hasPOPortal: false,
       avatarColor: '#E8820C',
@@ -108,6 +108,6 @@ export function useAuth() {
 }
 
 export const demoCredentials = [
-  { username: 'joy', password: '1234', desc: 'অ্যাডমিন · PO পোর্টাল অ্যাক্সেস' },
+  { username: 'asif', password: '1234', desc: 'অ্যাডমিন · PO পোর্টাল অ্যাক্সেস' },
   { username: 'foysal', password: '1234', desc: 'সাধারণ ইউজার · অনলাইন + অফলাইন' },
 ];

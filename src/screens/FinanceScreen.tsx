@@ -7,7 +7,10 @@ import { PillTabs } from '../components/PillTabs';
 import { ResponsiveGrid, ScreenScroll } from '../components/ScreenContainer';
 import { StatPill } from '../components/StatPill';
 import { useToast } from '../components/Toast';
+import { toBn } from '../data/strings';
 import { useActions } from '../state/AppActions';
+import { useProducts } from '../state/ProductsStore';
+import { useTransactions } from '../state/TransactionsStore';
 import { colors } from '../theme';
 
 type Tab = 'cash' | 'inv' | 'pksf';
@@ -43,12 +46,14 @@ export function FinanceScreen() {
 
 function Cash() {
   const toast = useToast();
+  const actions = useActions();
+  const { transactions, weekIncome, weekExpense, weekNet } = useTransactions();
   return (
     <ScreenScroll>
       <Row gap={8}>
-        <StatPill value="৳১৮,৪০০" label="এই সপ্তাহ আয়" tint={colors.greenSoft} valueColor={colors.green} />
-        <StatPill value="৳৫,২০০" label="এই সপ্তাহ ব্যয়" tint={colors.coralSoft} valueColor={colors.coral} />
-        <StatPill value="৳১৩,২০০" label="নিট লাভ" tint={colors.saffronSoft} valueColor={colors.saffron} />
+        <StatPill value={`৳${toBn(weekIncome.toLocaleString('en-US'))}`} label="এই সপ্তাহ আয়" tint={colors.greenSoft} valueColor={colors.green} />
+        <StatPill value={`৳${toBn(weekExpense.toLocaleString('en-US'))}`} label="এই সপ্তাহ ব্যয়" tint={colors.coralSoft} valueColor={colors.coral} />
+        <StatPill value={`৳${toBn(weekNet.toLocaleString('en-US'))}`} label="নিট লাভ" tint={colors.saffronSoft} valueColor={colors.saffron} />
       </Row>
 
       <SectionHeader title="সাপ্তাহিক প্রবাহ" />
@@ -80,38 +85,38 @@ function Cash() {
       <SectionHeader
         title="সাম্প্রতিক লেনদেন"
         trailing={
-          <Pressable onPress={() => toast.show('লেনদেন ফিল্টার শীঘ্রই আসছে', 'info')} hitSlop={6}>
+          <Pressable onPress={() => actions.openOverlay('ledger')} hitSlop={6}>
             <T size={13} color={colors.tealDark} weight="b">সব →</T>
           </Pressable>
         }
       />
       <Card style={{ padding: 4 }}>
-        {[
-          { n: 'মিনি ফ্যান × ২', d: 'করিম সাহেব', t: 'আজ', v: '+৳১,৭০০', kind: 'green' },
-          { n: 'নতুন স্টক কেনা', d: 'রহমান ট্রেডার্স', t: 'গতকাল', v: '-৳৪,৫০০', kind: 'coral' },
-          { n: 'কুলিং বোতল × ৩', d: 'সুমাইয়া আপু', t: 'গতকাল', v: '+৳১,০৫০', kind: 'green' },
-          { n: 'বিদ্যুৎ বিল', d: 'মাসিক', t: '২ দিন আগে', v: '-৳৭৫০', kind: 'coral' },
-        ].map((tx, i, arr) => (
-          <Pressable key={i} onPress={() => toast.show(`${tx.n} · ${tx.v}`, 'info')}>
-            <Row
-              gap={12}
-              style={{
-                padding: 12,
-                borderBottomWidth: i < arr.length - 1 ? 1 : 0,
-                borderBottomColor: colors.border2,
-              }}
-            >
-              <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: tx.kind === 'green' ? colors.greenSoft : colors.coralSoft, alignItems: 'center', justifyContent: 'center' }}>
-                <Ionicons name={tx.kind === 'green' ? 'arrow-down' : 'arrow-up'} size={16} color={tx.kind === 'green' ? colors.green : colors.coral} />
-              </View>
-              <View style={{ flex: 1 }}>
-                <T weight="s" size={14}>{tx.n}</T>
-                <T size={12} color={colors.ink2}>{tx.d} · {tx.t}</T>
-              </View>
-              <T weight="b" size={14} color={tx.kind === 'green' ? colors.green : colors.coral}>{tx.v}</T>
-            </Row>
-          </Pressable>
-        ))}
+        {transactions.map((tx, i, arr) => {
+          const positive = tx.kind === 'income';
+          const sign = positive ? '+' : '-';
+          const label = `${sign}৳${toBn(tx.amount.toLocaleString('en-US'))}`;
+          return (
+            <Pressable key={tx.id} onPress={() => toast.show(`${tx.name} · ${label}`, 'info')}>
+              <Row
+                gap={12}
+                style={{
+                  padding: 12,
+                  borderBottomWidth: i < arr.length - 1 ? 1 : 0,
+                  borderBottomColor: colors.border2,
+                }}
+              >
+                <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: positive ? colors.greenSoft : colors.coralSoft, alignItems: 'center', justifyContent: 'center' }}>
+                  <Ionicons name={positive ? 'arrow-down' : 'arrow-up'} size={16} color={positive ? colors.green : colors.coral} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <T weight="s" size={14}>{tx.name}</T>
+                  <T size={12} color={colors.ink2}>{tx.counterparty} · {tx.when}</T>
+                </View>
+                <T weight="b" size={14} color={positive ? colors.green : colors.coral}>{label}</T>
+              </Row>
+            </Pressable>
+          );
+        })}
       </Card>
 
       <Btn
@@ -120,7 +125,7 @@ function Cash() {
         full
         style={{ marginTop: 14 }}
         iconLeft={<Ionicons name="add" size={16} color={colors.ink2} />}
-        onPress={() => toast.show('নতুন লেনদেন ফর্ম শীঘ্রই আসছে', 'info')}
+        onPress={() => actions.openOverlay('transaction')}
       />
     </ScreenScroll>
   );
@@ -128,37 +133,57 @@ function Cash() {
 
 function Inventory() {
   const toast = useToast();
-  const items = [
-    { e: '🌀', n: 'মিনি ইউএসবি ফ্যান', q: 8, low: true },
-    { e: '💡', n: 'রিচার্জেবল হ্যান্ড ফ্যান', q: 23 },
-    { e: '🧴', n: 'কুলিং বোতল', q: 14 },
-    { e: '👜', n: 'কুলিং কুশন', q: 12 },
-    { e: '📦', n: 'প্লাস্টিক বক্স', q: 31 },
-    { e: '☂️', n: 'ছাতা', q: 6, low: true },
-  ];
+  const actions = useActions();
+  const { products, lowCount, adjustStock } = useProducts();
   return (
     <ScreenScroll>
-      <Card tinted={colors.amberSoft} style={{ padding: 14, marginBottom: 14 }}>
-        <Row gap={8}>
-          <SathiBadge />
-          <T weight="b" size={14}>২টি পণ্য কম স্টক · রিঅর্ডার দরকার</T>
-        </Row>
-      </Card>
+      {lowCount > 0 ? (
+        <Card tinted={colors.amberSoft} style={{ padding: 14, marginBottom: 14 }}>
+          <Row gap={8}>
+            <SathiBadge />
+            <T weight="b" size={14}>{toBn(lowCount)}টি পণ্য কম স্টক · রিঅর্ডার দরকার</T>
+          </Row>
+        </Card>
+      ) : null}
       <Card style={{ padding: 4 }}>
-        {items.map((it, i, arr) => (
-          <Pressable key={it.n} onPress={() => toast.show(`${it.n} · মজুদ ${it.q} টি`, 'info')}>
-            <Row gap={12} style={{ padding: 12, borderBottomWidth: i < arr.length - 1 ? 1 : 0, borderBottomColor: colors.border2 }}>
+        {products.map((it, i, arr) => {
+          const low = it.stock <= it.lowThreshold;
+          return (
+            <Row
+              key={it.id}
+              gap={12}
+              style={{ padding: 12, borderBottomWidth: i < arr.length - 1 ? 1 : 0, borderBottomColor: colors.border2 }}
+            >
               <View style={{ width: 44, height: 44, borderRadius: 10, backgroundColor: colors.bg, alignItems: 'center', justifyContent: 'center' }}>
-                <T size={22}>{it.e}</T>
+                <T size={22}>{it.emoji}</T>
               </View>
               <View style={{ flex: 1 }}>
-                <T weight="s" size={14}>{it.n}</T>
-                <T size={12} color={colors.ink2}>মজুদ: {it.q} টি</T>
+                <T weight="s" size={14}>{it.name}</T>
+                <T size={12} color={colors.ink2}>মজুদ: {toBn(it.stock)} টি · ৳{toBn(it.price)}</T>
               </View>
-              {it.low ? <Chip kind="coral" size={11}>কম</Chip> : <Chip kind="green" size={11}>ঠিক</Chip>}
+              <Row gap={4}>
+                <Pressable
+                  onPress={() => adjustStock(it.id, -1)}
+                  hitSlop={6}
+                  style={stepBtn}
+                >
+                  <Ionicons name="remove" size={14} color={colors.ink} />
+                </Pressable>
+                <Pressable
+                  onPress={() => {
+                    adjustStock(it.id, 1);
+                    toast.show(`${it.name} +১`, 'success');
+                  }}
+                  hitSlop={6}
+                  style={stepBtn}
+                >
+                  <Ionicons name="add" size={14} color={colors.ink} />
+                </Pressable>
+                {low ? <Chip kind="coral" size={11}>কম</Chip> : <Chip kind="green" size={11}>ঠিক</Chip>}
+              </Row>
             </Row>
-          </Pressable>
-        ))}
+          );
+        })}
       </Card>
       <Btn
         kind="greyOutline"
@@ -166,11 +191,22 @@ function Inventory() {
         full
         style={{ marginTop: 14 }}
         iconLeft={<Ionicons name="add" size={16} color={colors.ink2} />}
-        onPress={() => toast.show('নতুন পণ্য ফর্ম শীঘ্রই আসছে', 'info')}
+        onPress={() => actions.openOverlay('newProduct')}
       />
     </ScreenScroll>
   );
 }
+
+const stepBtn = {
+  width: 28,
+  height: 28,
+  borderRadius: 14,
+  backgroundColor: colors.bg,
+  alignItems: 'center' as const,
+  justifyContent: 'center' as const,
+  borderWidth: 1,
+  borderColor: colors.border2,
+};
 
 function PKSF() {
   const actions = useActions();
@@ -228,10 +264,7 @@ function PKSF() {
             label="বিস্তারিত রিপোর্ট"
             full
             style={{ flex: 1 }}
-            onPress={() => {
-              toast.show('রিপোর্ট তৈরি হচ্ছে — সাথী জানাবে', 'success');
-              actions.openOverlay('sathi', 'আমার PKSF রিপোর্ট বানিয়ে দাও');
-            }}
+            onPress={() => actions.openOverlay('pksfReport')}
             iconRight={<Ionicons name="arrow-forward" size={16} color="#fff" />}
           />
           <Btn

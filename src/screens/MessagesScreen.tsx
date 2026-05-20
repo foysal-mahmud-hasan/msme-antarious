@@ -210,7 +210,7 @@ function Leads() {
 }
 
 function Orders() {
-  const toast = useToast();
+  const actions = useActions();
   const orders = [
     { id: 'অর্ডার-৩৪২', cust: 'করিম সাহেব', items: '৩ পণ্য', t: '৳২,৭৫০', status: 'প্যাকিং', kind: 'amber' as const },
     { id: 'অর্ডার-৩৪১', cust: 'নাসরিন বেগম', items: '১ পণ্য', t: '৳৮৫০', status: 'পথে', kind: 'teal' as const },
@@ -220,7 +220,7 @@ function Orders() {
   return (
     <ScreenScroll>
       {orders.map((o) => (
-        <Pressable key={o.id} onPress={() => toast.show(`${o.id} — ${o.cust} (${o.status})`, 'info')}>
+        <Pressable key={o.id} onPress={() => actions.openOverlay('order', o.id)}>
           <Card style={{ padding: 14, marginBottom: 10 }}>
             <Row style={{ justifyContent: 'space-between' }}>
               <T weight="b" size={14}>{o.id}</T>
@@ -240,6 +240,11 @@ function Orders() {
 
 function Broadcast() {
   const toast = useToast();
+  const [editing, setEditing] = useState(false);
+  const [message, setMessage] = useState(
+    'প্রিয় গ্রাহক! গরমে আরাম পেতে মিনি ফ্যান এখন ৳৮৫০ মাত্র। আজই অর্ডার করুন — সীমিত স্টক।'
+  );
+  const [sent, setSent] = useState(false);
   return (
     <ScreenScroll>
       <Card style={{ padding: 16, marginBottom: 12 }}>
@@ -251,21 +256,63 @@ function Broadcast() {
         <T size={13} color={colors.ink2} style={{ marginTop: 4 }}>
           ৩ মাসে যারা গরমকালীন পণ্য কিনেছেন · WhatsApp + Facebook
         </T>
+        {editing ? (
+          <TextInput
+            value={message}
+            onChangeText={setMessage}
+            multiline
+            style={{
+              marginTop: 10,
+              padding: 12,
+              borderRadius: 10,
+              backgroundColor: colors.bg,
+              borderWidth: 1,
+              borderColor: colors.teal,
+              fontFamily: fonts.medium,
+              fontSize: 14,
+              color: colors.ink,
+              minHeight: 90,
+            }}
+          />
+        ) : (
+          <View style={{ marginTop: 10, padding: 12, borderRadius: 10, backgroundColor: colors.bg }}>
+            <T size={13.5} color={colors.ink} style={{ lineHeight: 20 }}>{message}</T>
+          </View>
+        )}
         <Row gap={8} style={{ marginTop: 14 }}>
-          <Btn
-            kind="teal"
-            label="অনুমোদন দিন"
-            size="sm"
-            full
-            style={{ flex: 1 }}
-            onPress={() => toast.show('৩৪ জনকে ব্রডকাস্ট পাঠানো হয়েছে ✓', 'success')}
-          />
-          <Btn
-            kind="greyOutline"
-            label="সম্পাদনা"
-            size="sm"
-            onPress={() => toast.show('সম্পাদনা শীঘ্রই আসছে', 'info')}
-          />
+          {sent ? (
+            <Btn kind="greenOutline" label="পাঠানো হয়েছে ✓" full style={{ flex: 1 }} size="sm" onPress={() => {}} />
+          ) : editing ? (
+            <>
+              <Btn
+                kind="teal"
+                label="সংরক্ষণ"
+                size="sm"
+                full
+                style={{ flex: 1 }}
+                onPress={() => {
+                  setEditing(false);
+                  toast.show('বার্তা সম্পাদনা সংরক্ষিত', 'success');
+                }}
+              />
+              <Btn kind="greyOutline" label="বাতিল" size="sm" onPress={() => setEditing(false)} />
+            </>
+          ) : (
+            <>
+              <Btn
+                kind="teal"
+                label="অনুমোদন দিন"
+                size="sm"
+                full
+                style={{ flex: 1 }}
+                onPress={() => {
+                  setSent(true);
+                  toast.show('৩৪ জনকে ব্রডকাস্ট পাঠানো হয়েছে ✓', 'success');
+                }}
+              />
+              <Btn kind="greyOutline" label="সম্পাদনা" size="sm" onPress={() => setEditing(true)} />
+            </>
+          )}
         </Row>
       </Card>
       <Card style={{ padding: 16, marginBottom: 12 }}>
@@ -301,6 +348,8 @@ function Conversation({ c, onClose }: { c: Convo; onClose: () => void }) {
     { who: 'other' as const, text: 'দাম কমানো যাবে? ১০টা নেব। ৩৫ দিনের মধ্যে বিক্রি করব ইনশাআল্লাহ্‌' },
   ]);
   const [suggestionSent, setSuggestionSent] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [recording, setRecording] = useState(false);
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <View style={styles.convoHeader}>
@@ -317,10 +366,37 @@ function Conversation({ c, onClose }: { c: Convo; onClose: () => void }) {
             {c.pl === 'fb' ? 'Facebook' : 'WhatsApp'} · ঢাকা · ৮টি অর্ডার
           </T>
         </View>
-        <Pressable hitSlop={6} onPress={() => toast.show('আরও অপশন শীঘ্রই আসছে', 'info')} style={styles.iconBtn}>
+        <Pressable hitSlop={6} onPress={() => setMenuOpen((v) => !v)} style={styles.iconBtn}>
           <Ionicons name="ellipsis-vertical" size={18} color={colors.ink} />
         </Pressable>
       </View>
+
+      {menuOpen ? (
+        <View style={styles.menuSheet}>
+          {[
+            { icon: 'person-circle-outline' as const, label: 'গ্রাহক প্রোফাইল', act: () => toast.show(`${c.n} · ${c.pl === 'fb' ? 'Facebook' : 'WhatsApp'} · ৮টি অর্ডার · ৳১২,৪০০ মোট কেনাকাটা`, 'info') },
+            { icon: 'pricetag-outline' as const, label: 'ট্যাগ যোগ করুন', act: () => toast.show('"VIP" ট্যাগ যোগ হয়েছে', 'success') },
+            { icon: 'archive-outline' as const, label: 'কথোপকথন আর্কাইভ করুন', act: () => { onClose(); toast.show(`${c.n}-এর কথোপকথন আর্কাইভ হয়েছে`, 'info'); } },
+            { icon: 'ban-outline' as const, label: 'ব্লক করুন', act: () => toast.show(`${c.n} ব্লক হয়েছে`, 'warn') },
+          ].map((m, i, arr) => (
+            <Pressable
+              key={m.label}
+              onPress={() => { setMenuOpen(false); m.act(); }}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 12,
+                padding: 14,
+                borderBottomWidth: i < arr.length - 1 ? 1 : 0,
+                borderBottomColor: colors.border2,
+              }}
+            >
+              <Ionicons name={m.icon} size={18} color={colors.ink} />
+              <T weight="s" size={14} color={m.label === 'ব্লক করুন' ? colors.coral : colors.ink}>{m.label}</T>
+            </Pressable>
+          ))}
+        </View>
+      ) : null}
 
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 14, gap: 10 }}>
         {bubbles.map((b, i) => (
@@ -370,6 +446,15 @@ function Conversation({ c, onClose }: { c: Convo; onClose: () => void }) {
         </View>
       ) : null}
 
+      {recording ? (
+        <View style={styles.recordingBar}>
+          <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: colors.coral }} />
+          <T size={13} color={colors.coral} weight="b">ভয়েস রেকর্ড হচ্ছে…</T>
+          <View style={{ flex: 1 }} />
+          <T size={12} color={colors.ink2}>{`তর্জমা চলছে…`}</T>
+        </View>
+      ) : null}
+
       <View style={styles.composer}>
         <View style={styles.input}>
           <TextInput
@@ -386,17 +471,24 @@ function Conversation({ c, onClose }: { c: Convo; onClose: () => void }) {
             returnKeyType="send"
           />
           <Pressable
-            style={styles.micBtn}
+            style={[styles.micBtn, recording ? { backgroundColor: colors.coral } : null]}
             onPress={() => {
               if (composer.trim()) {
                 setBubbles((b) => [...b, { who: 'me', text: composer }]);
                 setComposer('');
-              } else {
-                toast.show('ভয়েস ইনপুট শীঘ্রই আসছে', 'info');
+                return;
               }
+              if (recording) return;
+              setRecording(true);
+              toast.show('শুনছি…', 'info');
+              setTimeout(() => {
+                setRecording(false);
+                setComposer('ঠিক আছে, পাঠিয়ে দিচ্ছি। ধন্যবাদ!');
+                toast.show('ভয়েস → টেক্সট রূপান্তর সম্পন্ন', 'success');
+              }, 1600);
             }}
           >
-            <Ionicons name={composer.trim() ? 'send' : 'mic'} size={18} color="#fff" />
+            <Ionicons name={composer.trim() ? 'send' : recording ? 'stop' : 'mic'} size={18} color="#fff" />
           </Pressable>
         </View>
       </View>
@@ -478,5 +570,31 @@ const styles = StyleSheet.create({
     backgroundColor: colors.tealDark,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  menuSheet: {
+    position: 'absolute',
+    top: 64,
+    right: 12,
+    width: 240,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.border2,
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 6,
+    zIndex: 50,
+  },
+  recordingBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    backgroundColor: colors.coralSoft,
+    borderTopWidth: 1,
+    borderTopColor: colors.coral,
   },
 });

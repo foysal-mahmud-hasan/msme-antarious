@@ -11,7 +11,12 @@ export type OverlayName =
   | 'haat'
   | 'ledger'
   | 'journey'
-  | 'po';
+  | 'po'
+  | 'transaction'
+  | 'order'
+  | 'pksfReport'
+  | 'newProduct'
+  | 'newDebt';
 
 export type AppActions = {
   /** Switch to a top-level tab, optionally setting its sub-tab. Closes any open overlay. */

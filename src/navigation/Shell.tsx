@@ -1,7 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Animated, Easing, Pressable, StyleSheet, View } from 'react-native';
 import { useAuth } from '../auth/AuthContext';
 import { useResponsive } from '../components/AppFrame';
+import { POPortalScreen } from '../screens/POPortalScreen';
+import { SathiChatScreen } from '../screens/SathiChatScreen';
 import { AppActions, AppActionsProvider, OverlayName, Route } from '../state/AppActions';
+import { colors } from '../theme';
 import { DesktopShell } from './DesktopShell';
 import { MobileShell } from './MobileShell';
 
@@ -15,10 +19,10 @@ const DEFAULT_SUB_TABS: Record<Route, string> = {
 
 export function Shell() {
   const { isDesktop } = useResponsive();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
 
   const [route, setRoute] = useState<Route>('home');
-  const [overlay, setOverlay] = useState<OverlayName | null>(user?.hasPOPortal ? 'po' : null);
+  const [overlay, setOverlay] = useState<OverlayName | null>(null);
   const [overlayPrefill, setOverlayPrefill] = useState<string | undefined>(undefined);
   const [subTabs, setSubTabs] = useState<Record<Route, string>>(DEFAULT_SUB_TABS);
 
@@ -26,11 +30,11 @@ export function Shell() {
   useEffect(() => {
     if (user?.id !== lastUserId.current) {
       lastUserId.current = user?.id ?? null;
-      setOverlay(user?.hasPOPortal ? 'po' : null);
+      setOverlay(null);
       setOverlayPrefill(undefined);
       setRoute('home');
     }
-  }, [user?.id, user?.hasPOPortal]);
+  }, [user?.id]);
 
   const actions: AppActions = useMemo(
     () => ({
@@ -59,6 +63,22 @@ export function Shell() {
     [route, overlay, overlayPrefill, subTabs, user?.hasPOPortal]
   );
 
+  if (user?.hasPOPortal) {
+    return (
+      <AppActionsProvider value={actions}>
+        <POOnlyShell
+          overlay={overlay}
+          overlayPrefill={overlayPrefill}
+          onSignOut={signOut}
+          onCloseOverlay={() => {
+            setOverlay(null);
+            setOverlayPrefill(undefined);
+          }}
+        />
+      </AppActionsProvider>
+    );
+  }
+
   return (
     <AppActionsProvider value={actions}>
       {isDesktop ? (
@@ -67,5 +87,117 @@ export function Shell() {
         <MobileShell route={route} setRoute={setRoute} overlay={overlay} />
       )}
     </AppActionsProvider>
+  );
+}
+
+/* ──────────── PO-only shell ──────────── */
+
+function POOnlyShell({
+  overlay,
+  overlayPrefill,
+  onSignOut,
+  onCloseOverlay,
+}: {
+  overlay: OverlayName | null;
+  overlayPrefill: string | undefined;
+  onSignOut: () => void;
+  onCloseOverlay: () => void;
+}) {
+  return (
+    <View style={{ flex: 1 }}>
+      <POPortalScreen onClose={onSignOut} />
+      <SlideOverlay open={overlay === 'sathi'} onClose={onCloseOverlay}>
+        <SathiChatScreen onClose={onCloseOverlay} prefill={overlayPrefill} />
+      </SlideOverlay>
+    </View>
+  );
+}
+
+function SlideOverlay({
+  open,
+  onClose,
+  children,
+}: {
+  open: boolean;
+  onClose: () => void;
+  children: React.ReactNode;
+}) {
+  const { isDesktop } = useResponsive();
+  const [mounted, setMounted] = useState(open);
+  const slide = useRef(new Animated.Value(open ? 0 : 1)).current;
+
+  useEffect(() => {
+    if (open) {
+      setMounted(true);
+      Animated.timing(slide, {
+        toValue: 0,
+        duration: 240,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }).start();
+    } else if (mounted) {
+      Animated.timing(slide, {
+        toValue: 1,
+        duration: 200,
+        easing: Easing.in(Easing.cubic),
+        useNativeDriver: true,
+      }).start(({ finished }) => {
+        if (finished) setMounted(false);
+      });
+    }
+  }, [open]);
+
+  if (!mounted) return null;
+
+  if (isDesktop) {
+    return (
+      <View style={StyleSheet.absoluteFill} pointerEvents={open ? 'auto' : 'none'}>
+        <Pressable onPress={onClose} style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(15,23,42,0.45)' }]} />
+        <Animated.View
+          style={{
+            position: 'absolute',
+            right: 0,
+            top: 0,
+            bottom: 0,
+            width: 440,
+            maxWidth: ('100%') as `${number}%`,
+            backgroundColor: colors.bg,
+            shadowColor: '#000',
+            shadowOpacity: 0.25,
+            shadowRadius: 28,
+            shadowOffset: { width: -8, height: 0 },
+            elevation: 16,
+            transform: [
+              {
+                translateX: slide.interpolate({ inputRange: [0, 1], outputRange: [0, 440] }),
+              },
+            ],
+          }}
+        >
+          {children}
+        </Animated.View>
+      </View>
+    );
+  }
+
+  return (
+    <Animated.View
+      pointerEvents={open ? 'auto' : 'none'}
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: colors.bg,
+        transform: [
+          {
+            translateY: slide.interpolate({ inputRange: [0, 1], outputRange: [0, 600] }),
+          },
+        ],
+      }}
+    >
+      {children}
+    </Animated.View>
   );
 }

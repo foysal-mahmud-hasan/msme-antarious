@@ -13,7 +13,12 @@ import { LedgerScreen } from '../screens/LedgerScreen';
 import { MarketScreen } from '../screens/MarketScreen';
 import { MessagesScreen } from '../screens/MessagesScreen';
 import { MoreScreen } from '../screens/MoreScreen';
+import { NewDebtScreen } from '../screens/NewDebtScreen';
+import { NewProductScreen } from '../screens/NewProductScreen';
+import { NewTransactionScreen } from '../screens/NewTransactionScreen';
 import { OfflineHomeScreen } from '../screens/OfflineHomeScreen';
+import { OrderDetailsScreen } from '../screens/OrderDetailsScreen';
+import { PKSFReportScreen } from '../screens/PKSFReportScreen';
 import { POPortalScreen } from '../screens/POPortalScreen';
 import { QuickSaleScreen } from '../screens/QuickSaleScreen';
 import { SathiChatScreen } from '../screens/SathiChatScreen';
@@ -74,6 +79,21 @@ export function MobileShell({ route, setRoute, overlay }: Props) {
       </Overlay>
       <Overlay open={overlay === 'po' && !!user?.hasPOPortal}>
         <POPortalScreen onClose={actions.closeOverlay} />
+      </Overlay>
+      <Overlay open={overlay === 'transaction'}>
+        <NewTransactionScreen onClose={actions.closeOverlay} />
+      </Overlay>
+      <Overlay open={overlay === 'order'}>
+        <OrderDetailsScreen onClose={actions.closeOverlay} orderId={actions.overlayPrefill} />
+      </Overlay>
+      <Overlay open={overlay === 'pksfReport'}>
+        <PKSFReportScreen onClose={actions.closeOverlay} />
+      </Overlay>
+      <Overlay open={overlay === 'newProduct'}>
+        <NewProductScreen onClose={actions.closeOverlay} />
+      </Overlay>
+      <Overlay open={overlay === 'newDebt'}>
+        <NewDebtScreen onClose={actions.closeOverlay} />
       </Overlay>
     </View>
   );

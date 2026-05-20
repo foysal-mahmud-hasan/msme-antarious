@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import React from 'react';
+import React, { useState } from 'react';
 import { Pressable, Switch, View } from 'react-native';
 import { useAuth } from '../auth/AuthContext';
 import { Avatar, Card, Chip, Row, T } from '../components/atoms';
@@ -8,10 +8,17 @@ import { useToast } from '../components/Toast';
 import { useActions } from '../state/AppActions';
 import { colors } from '../theme';
 
+type Lang = 'bn' | 'en' | 'mix';
+
 export function MoreScreen() {
   const { user, signOut, offline, setOffline } = useAuth();
   const actions = useActions();
   const toast = useToast();
+  const [openPanel, setOpenPanel] = useState<'language' | 'security' | null>(null);
+  const [lang, setLang] = useState<Lang>('bn');
+  const [pin, setPin] = useState(true);
+  const [bio, setBio] = useState(false);
+  const [autolock, setAutolock] = useState<5 | 15 | 60>(15);
   if (!user) return null;
   return (
     <View style={{ flex: 1 }}>
@@ -75,41 +82,128 @@ export function MoreScreen() {
           সেটিংস
         </T>
         <Card style={{ padding: 0, marginBottom: 14 }}>
-          {[
-            { icon: 'language', label: 'ভাষা', sub: 'বাংলা · English', msg: 'ভাষা পরিবর্তন শীঘ্রই আসছে' },
-            { icon: 'cloud-upload-outline', label: 'ব্যাকআপ', sub: 'গতকাল সিঙ্ক হয়েছে', msg: 'ম্যানুয়াল ব্যাকআপ শুরু হয়েছে' },
-            { icon: 'shield-checkmark-outline', label: 'নিরাপত্তা', sub: 'PIN ও বায়োমেট্রিক', msg: 'নিরাপত্তা সেটিংস শীঘ্রই আসছে' },
-            { icon: 'help-circle-outline', label: 'সাহায্য', sub: 'সাথীকে জিজ্ঞেস করুন', msg: 'সাথী চ্যাট খুলছে…' },
-          ].map((it, i, arr) => (
-            <Pressable
-              key={it.label}
-              onPress={() => {
-                if (it.label === 'সাহায্য') {
-                  actions.openOverlay('sathi', 'সাহায্য চাই');
-                } else {
-                  toast.show(it.msg, 'info');
-                }
-              }}
-            >
-              <Row
-                gap={12}
-                style={{
-                  padding: 14,
-                  borderBottomWidth: i < arr.length - 1 ? 1 : 0,
-                  borderBottomColor: colors.border2,
-                }}
-              >
-                <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: colors.bg, alignItems: 'center', justifyContent: 'center' }}>
-                  <Ionicons name={it.icon as any} size={18} color={colors.ink} />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <T weight="s" size={14}>{it.label}</T>
-                  <T size={12} color={colors.ink2}>{it.sub}</T>
-                </View>
-                <Ionicons name="chevron-forward" size={18} color={colors.ink2} />
-              </Row>
-            </Pressable>
-          ))}
+          {([
+            { key: 'language' as const, icon: 'language', label: 'ভাষা', sub: lang === 'bn' ? 'বাংলা' : lang === 'en' ? 'English' : 'বাংলা + English' },
+            { key: 'backup' as const, icon: 'cloud-upload-outline', label: 'ব্যাকআপ', sub: 'গতকাল সিঙ্ক হয়েছে' },
+            { key: 'security' as const, icon: 'shield-checkmark-outline', label: 'নিরাপত্তা', sub: `${pin ? 'PIN চালু' : 'PIN বন্ধ'}${bio ? ' · বায়োমেট্রিক চালু' : ''}` },
+            { key: 'help' as const, icon: 'help-circle-outline', label: 'সাহায্য', sub: 'সাথীকে জিজ্ঞেস করুন' },
+          ]).map((it, i, arr) => {
+            const expanded = openPanel === (it.key as any);
+            return (
+              <View key={it.key} style={{ borderBottomWidth: i < arr.length - 1 ? 1 : 0, borderBottomColor: colors.border2 }}>
+                <Pressable
+                  onPress={() => {
+                    if (it.key === 'help') {
+                      actions.openOverlay('sathi', 'সাহায্য চাই');
+                    } else if (it.key === 'backup') {
+                      toast.show('ম্যানুয়াল ব্যাকআপ শুরু হয়েছে…', 'success');
+                    } else {
+                      setOpenPanel(expanded ? null : it.key);
+                    }
+                  }}
+                >
+                  <Row gap={12} style={{ padding: 14 }}>
+                    <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: colors.bg, alignItems: 'center', justifyContent: 'center' }}>
+                      <Ionicons name={it.icon as any} size={18} color={colors.ink} />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <T weight="s" size={14}>{it.label}</T>
+                      <T size={12} color={colors.ink2}>{it.sub}</T>
+                    </View>
+                    <Ionicons name={expanded ? 'chevron-up' : 'chevron-forward'} size={18} color={colors.ink2} />
+                  </Row>
+                </Pressable>
+                {expanded && it.key === 'language' ? (
+                  <View style={{ paddingHorizontal: 14, paddingBottom: 14, gap: 8 }}>
+                    {([
+                      { id: 'bn' as const, l: 'বাংলা', d: 'সব লেবেল বাংলায়' },
+                      { id: 'en' as const, l: 'English', d: 'All labels in English' },
+                      { id: 'mix' as const, l: 'বাংলা + English', d: 'দ্বিভাষিক · Bilingual' },
+                    ]).map((opt) => {
+                      const active = lang === opt.id;
+                      return (
+                        <Pressable
+                          key={opt.id}
+                          onPress={() => {
+                            setLang(opt.id);
+                            toast.show(`ভাষা পরিবর্তন: ${opt.l}`, 'success');
+                          }}
+                          style={{
+                            padding: 12,
+                            borderRadius: 10,
+                            borderWidth: active ? 2 : 1,
+                            borderColor: active ? colors.tealDark : colors.border2,
+                            backgroundColor: active ? colors.tealSoft : '#fff',
+                          }}
+                        >
+                          <Row gap={10}>
+                            <Ionicons name={active ? 'radio-button-on' : 'radio-button-off'} size={18} color={active ? colors.tealDark : colors.ink2} />
+                            <View style={{ flex: 1 }}>
+                              <T weight="b" size={14}>{opt.l}</T>
+                              <T size={12} color={colors.ink2}>{opt.d}</T>
+                            </View>
+                          </Row>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                ) : null}
+                {expanded && it.key === 'security' ? (
+                  <View style={{ paddingHorizontal: 14, paddingBottom: 14, gap: 10 }}>
+                    <Row style={{ justifyContent: 'space-between', paddingVertical: 8 }}>
+                      <View style={{ flex: 1 }}>
+                        <T weight="s" size={14}>PIN লক</T>
+                        <T size={12} color={colors.ink2}>৪ অঙ্কের কোড দিয়ে অ্যাপ খুলুন</T>
+                      </View>
+                      <Switch
+                        value={pin}
+                        onValueChange={(v) => { setPin(v); toast.show(`PIN লক ${v ? 'চালু' : 'বন্ধ'}`, v ? 'success' : 'info'); }}
+                        trackColor={{ true: colors.tealDark, false: '#cbd5e1' }}
+                        thumbColor="#fff"
+                      />
+                    </Row>
+                    <Row style={{ justifyContent: 'space-between', paddingVertical: 8, borderTopWidth: 1, borderTopColor: colors.border2 }}>
+                      <View style={{ flex: 1 }}>
+                        <T weight="s" size={14}>বায়োমেট্রিক</T>
+                        <T size={12} color={colors.ink2}>আঙুলের ছাপ / ফেস</T>
+                      </View>
+                      <Switch
+                        value={bio}
+                        onValueChange={(v) => { setBio(v); toast.show(`বায়োমেট্রিক ${v ? 'চালু' : 'বন্ধ'}`, v ? 'success' : 'info'); }}
+                        trackColor={{ true: colors.tealDark, false: '#cbd5e1' }}
+                        thumbColor="#fff"
+                      />
+                    </Row>
+                    <View style={{ paddingVertical: 8, borderTopWidth: 1, borderTopColor: colors.border2 }}>
+                      <T weight="s" size={14}>অটো-লক</T>
+                      <Row gap={8} style={{ marginTop: 8 }}>
+                        {([5, 15, 60] as const).map((m) => {
+                          const active = autolock === m;
+                          return (
+                            <Pressable
+                              key={m}
+                              onPress={() => { setAutolock(m); toast.show(`অটো-লক: ${m} মিনিট`, 'info'); }}
+                              style={{
+                                flex: 1,
+                                paddingVertical: 10,
+                                borderRadius: 10,
+                                alignItems: 'center',
+                                borderWidth: active ? 2 : 1,
+                                borderColor: active ? colors.tealDark : colors.border2,
+                                backgroundColor: active ? colors.tealSoft : '#fff',
+                              }}
+                            >
+                              <T weight="b" size={13} color={active ? colors.tealDark : colors.ink}>{m} মি</T>
+                            </Pressable>
+                          );
+                        })}
+                      </Row>
+                    </View>
+                  </View>
+                ) : null}
+              </View>
+            );
+          })}
         </Card>
 
         <Pressable onPress={signOut}>

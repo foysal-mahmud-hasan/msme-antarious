@@ -5,20 +5,20 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Avatar, Btn, Card, Chip, Row, SathiBadge, T } from '../components/atoms';
 import { ScreenScroll } from '../components/ScreenContainer';
 import { useToast } from '../components/Toast';
+import { toBn } from '../data/strings';
+import { useActions } from '../state/AppActions';
+import { useDebts } from '../state/DebtsStore';
 import { colors } from '../theme';
 
-const debts = [
-  { n: 'রহিম মিয়া', amount: 1200, days: 32, phone: 'হোয়াটসঅ্যাপ', color: '#ffb077', avatar: 'র', kind: 'coral' as const },
-  { n: 'নাজমা পারভীন', amount: 850, days: 14, phone: 'কল', color: '#f6a8b1', avatar: 'ন', kind: 'amber' as const },
-  { n: 'আবুল হোসেন', amount: 1400, days: 8, phone: 'হোয়াটসঅ্যাপ', color: '#a8d4ff', avatar: 'আ', kind: 'green' as const },
-  { n: 'সাকিব হাসান', amount: 600, days: 21, phone: 'কল', color: '#c6b8f0', avatar: 'স', kind: 'amber' as const },
-  { n: 'হাসিনা বেগম', amount: 480, days: 4, phone: 'হোয়াটসঅ্যাপ', color: '#ffd28a', avatar: 'হ', kind: 'green' as const },
-  { n: 'মুনির খান', amount: 220, days: 17, phone: 'কল', color: '#b0e6c5', avatar: 'ম', kind: 'amber' as const },
-  { n: 'সুমাইয়া আক্তার', amount: 100, days: 2, phone: 'হোয়াটসঅ্যাপ', color: '#ffd0d0', avatar: 'সু', kind: 'green' as const },
-];
+function kindFor(days: number): 'coral' | 'amber' | 'green' {
+  if (days >= 25) return 'coral';
+  if (days >= 10) return 'amber';
+  return 'green';
+}
 
 export function LedgerScreen({ onClose }: { onClose: () => void }) {
-  const total = debts.reduce((s, d) => s + d.amount, 0);
+  const { debts, total, settleDebt } = useDebts();
+  const actions = useActions();
   const toast = useToast();
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
@@ -31,7 +31,7 @@ export function LedgerScreen({ onClose }: { onClose: () => void }) {
             <T weight="b" size={16}>কাস্টমার খাতা</T>
             <T size={12} color={colors.ink2}>মোট বাকি: {debts.length} জন</T>
           </View>
-          <T weight="b" size={20} color={colors.coral}>৳{total.toLocaleString('bn-BD')}</T>
+          <T weight="b" size={20} color={colors.coral}>৳{toBn(total.toLocaleString('en-US'))}</T>
         </Row>
       </View>
 
@@ -55,40 +55,47 @@ export function LedgerScreen({ onClose }: { onClose: () => void }) {
         </Card>
 
         <Card style={{ padding: 4 }}>
-          {debts.map((d, i) => (
-            <Pressable
-              key={d.n}
-              onPress={() =>
-                toast.show(
-                  `${d.n} · ৳${d.amount.toLocaleString('bn-BD')} · ${d.days} দিন`,
-                  d.kind === 'coral' ? 'warn' : 'info'
-                )
-              }
-            >
-            <Row
-              gap={12}
-              style={{
-                padding: 14,
-                borderTopWidth: i ? 1 : 0,
-                borderTopColor: colors.border2,
-              }}
-            >
-              <Avatar text={d.avatar} bg={d.color} color={colors.ink} />
-              <View style={{ flex: 1 }}>
-                <Row style={{ justifyContent: 'space-between' }}>
-                  <T weight="b" size={14.5}>{d.n}</T>
-                  <T weight="b" size={14.5} color={d.kind === 'coral' ? colors.coral : d.kind === 'amber' ? colors.amber : colors.green}>
-                    ৳{d.amount.toLocaleString('bn-BD')}
-                  </T>
+          {debts.map((d, i) => {
+            const kind = kindFor(d.days);
+            return (
+              <Pressable
+                key={d.id}
+                onPress={() => {
+                  settleDebt(d.id);
+                  toast.show(`${d.name} · ৳${toBn(d.amount.toLocaleString('en-US'))} পরিশোধ চিহ্নিত`, 'success');
+                }}
+              >
+                <Row
+                  gap={12}
+                  style={{
+                    padding: 14,
+                    borderTopWidth: i ? 1 : 0,
+                    borderTopColor: colors.border2,
+                  }}
+                >
+                  <Avatar text={d.avatarInitial} bg={d.avatarColor} color={colors.ink} />
+                  <View style={{ flex: 1 }}>
+                    <Row style={{ justifyContent: 'space-between' }}>
+                      <T weight="b" size={14.5}>{d.name}</T>
+                      <T weight="b" size={14.5} color={kind === 'coral' ? colors.coral : kind === 'amber' ? colors.amber : colors.green}>
+                        ৳{toBn(d.amount.toLocaleString('en-US'))}
+                      </T>
+                    </Row>
+                    <Row style={{ justifyContent: 'space-between', marginTop: 4 }}>
+                      <T size={12} color={colors.ink2}>{toBn(d.days)} দিন · {d.contact}</T>
+                      <Chip kind={kind} size={10}>{kind === 'coral' ? 'জরুরি' : kind === 'amber' ? 'খেয়াল রাখুন' : 'সাম্প্রতিক'}</Chip>
+                    </Row>
+                  </View>
                 </Row>
-                <Row style={{ justifyContent: 'space-between', marginTop: 4 }}>
-                  <T size={12} color={colors.ink2}>{d.days} দিন · {d.phone}</T>
-                  <Chip kind={d.kind} size={10}>{d.kind === 'coral' ? 'জরুরি' : d.kind === 'amber' ? 'খেয়াল রাখুন' : 'সাম্প্রতিক'}</Chip>
-                </Row>
-              </View>
-            </Row>
-            </Pressable>
-          ))}
+              </Pressable>
+            );
+          })}
+          {debts.length === 0 ? (
+            <View style={{ padding: 40, alignItems: 'center' }}>
+              <T size={28}>✅</T>
+              <T size={13} color={colors.ink2} style={{ marginTop: 8 }}>কোনো বাকি নেই</T>
+            </View>
+          ) : null}
         </Card>
 
         <Btn
@@ -97,7 +104,7 @@ export function LedgerScreen({ onClose }: { onClose: () => void }) {
           full
           style={{ marginTop: 14 }}
           iconLeft={<Ionicons name="add" size={16} color={colors.ink2} />}
-          onPress={() => toast.show('নতুন বাকি ফর্ম শীঘ্রই আসছে', 'info')}
+          onPress={() => actions.openOverlay('newDebt')}
         />
       </ScreenScroll>
     </SafeAreaView>

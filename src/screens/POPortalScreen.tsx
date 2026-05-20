@@ -34,6 +34,8 @@ const rows: Row[] = [
 
 const dotColor = (k: 'g' | 'a' | 'r') => (k === 'g' ? colors.green : k === 'a' ? colors.amber : colors.coral);
 
+const ALL_DISTRICTS = ['ঢাকা', 'চট্টগ্রাম', 'সিলেট', 'খুলনা', 'রাজশাহী', 'বরিশাল', 'রংপুর'];
+
 export function POPortalScreen({ onClose }: { onClose: () => void }) {
   const { user } = useAuth();
   const { isDesktop } = useResponsive();
@@ -41,6 +43,8 @@ export function POPortalScreen({ onClose }: { onClose: () => void }) {
   const [openId, setOpenId] = useState<number | null>(null);
   const [tab, setTab] = useState<'overview' | 'list' | 'alerts'>('overview');
   const [query, setQuery] = useState('');
+  const [district, setDistrict] = useState<string | null>(null);
+  const [showDistrictMenu, setShowDistrictMenu] = useState(false);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#f1f5f9' }}>
@@ -126,8 +130,8 @@ export function POPortalScreen({ onClose }: { onClose: () => void }) {
             ))}
           </View>
           <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 28, paddingBottom: 60 }}>
-            {tab === 'overview' && <OverviewDesktop query={query} />}
-            {tab === 'list' && <BeneficiariesDesktop openId={openId} setOpenId={setOpenId} query={query} />}
+            {tab === 'overview' && <OverviewDesktop query={query} district={district} setDistrict={setDistrict} />}
+            {tab === 'list' && <BeneficiariesDesktop openId={openId} setOpenId={setOpenId} query={query} district={district} setDistrict={setDistrict} />}
             {tab === 'alerts' && <AlertsDesktop />}
           </ScrollView>
         </Row>
@@ -144,14 +148,66 @@ export function POPortalScreen({ onClose }: { onClose: () => void }) {
 
 /* ────────────── Desktop layouts ────────────── */
 
-function filterRows(query: string) {
+function filterRows(query: string, district: string | null = null) {
   const q = query.trim().toLowerCase();
-  if (!q) return rows;
-  return rows.filter((r) => r.n.toLowerCase().includes(q) || r.d.toLowerCase().includes(q) || r.b.toLowerCase().includes(q));
+  return rows.filter((r) => {
+    if (district && r.d !== district) return false;
+    if (q && !(r.n.toLowerCase().includes(q) || r.d.toLowerCase().includes(q) || r.b.toLowerCase().includes(q))) return false;
+    return true;
+  });
 }
 
-function OverviewDesktop({ query }: { query: string }) {
-  const filtered = filterRows(query);
+function DistrictPicker({ district, setDistrict }: { district: string | null; setDistrict: (d: string | null) => void }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <View style={{ position: 'relative' }}>
+      <Pressable style={chipBtn} onPress={() => setOpen((v) => !v)}>
+        <Ionicons name="location-outline" size={12} color="#475569" />
+        <T size={12} color="#475569" style={{ marginLeft: 4 }}>{district ?? 'সব জেলা'}</T>
+        <Ionicons name="chevron-down" size={12} color="#475569" style={{ marginLeft: 4 }} />
+      </Pressable>
+      {open ? (
+        <View
+          style={{
+            position: 'absolute',
+            top: 36,
+            right: 0,
+            width: 180,
+            backgroundColor: '#fff',
+            borderRadius: 10,
+            borderWidth: 1,
+            borderColor: '#e6e8ec',
+            shadowColor: '#000',
+            shadowOpacity: 0.12,
+            shadowRadius: 14,
+            shadowOffset: { width: 0, height: 6 },
+            elevation: 10,
+            zIndex: 50,
+            paddingVertical: 4,
+          }}
+        >
+          {[null, ...ALL_DISTRICTS].map((d) => {
+            const active = district === d;
+            return (
+              <Pressable
+                key={d ?? 'all'}
+                onPress={() => { setDistrict(d); setOpen(false); }}
+                style={{ paddingHorizontal: 12, paddingVertical: 10, backgroundColor: active ? '#eff6ff' : '#fff' }}
+              >
+                <T size={13} weight={active ? 'b' : 'm'} color={active ? '#1d4ed8' : '#0f172a'}>
+                  {d ?? 'সব জেলা'}
+                </T>
+              </Pressable>
+            );
+          })}
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
+function OverviewDesktop({ query, district, setDistrict }: { query: string; district: string | null; setDistrict: (d: string | null) => void }) {
+  const filtered = filterRows(query, district);
   const toast = useToast();
   const actions = useActions();
   return (
@@ -176,9 +232,7 @@ function OverviewDesktop({ query }: { query: string }) {
           <View style={{ padding: 16, borderBottomWidth: 1, borderBottomColor: '#e6e8ec', flexDirection: 'row', justifyContent: 'space-between' }}>
             <T weight="b" size={15}>বেনিফিশিয়ারি ({filtered.length} এর মধ্যে)</T>
             <Row gap={8}>
-              <Pressable style={chipBtn} onPress={() => toast.show('জেলা ফিল্টার শীঘ্রই আসছে', 'info')}>
-                <T size={12} color="#475569">সব জেলা</T>
-              </Pressable>
+              <DistrictPicker district={district} setDistrict={setDistrict} />
               <Pressable style={chipBtn} onPress={() => toast.show('CSV রপ্তানি শুরু হয়েছে', 'success')}>
                 <T size={12} color="#475569">রপ্তানি</T>
               </Pressable>
@@ -262,10 +316,14 @@ function OverviewDesktop({ query }: { query: string }) {
   );
 }
 
-function BeneficiariesDesktop({ openId, setOpenId, query }: { openId: number | null; setOpenId: (n: number | null) => void; query: string }) {
-  const filtered = filterRows(query);
+function BeneficiariesDesktop({ openId, setOpenId, query, district, setDistrict }: { openId: number | null; setOpenId: (n: number | null) => void; query: string; district: string | null; setDistrict: (d: string | null) => void }) {
+  const filtered = filterRows(query, district);
   return (
     <View style={{ gap: 16 }}>
+      <View style={[poCard, { padding: 12, flexDirection: 'row', justifyContent: 'space-between' }]}>
+        <T weight="b" size={14}>বেনিফিশিয়ারি · {filtered.length} জন</T>
+        <DistrictPicker district={district} setDistrict={setDistrict} />
+      </View>
       <View style={[poCard, { padding: 0 }]}>
         <View style={{ flexDirection: 'row', padding: 14, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#e6e8ec' }}>
           {['নাম', 'জেলা', 'ব্যবসা', 'মাসিক আয়', 'প্রবৃদ্ধি', 'স্বাস্থ্য', 'ঋণ-যোগ্যতা'].map((h, i) => (

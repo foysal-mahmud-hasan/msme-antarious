@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useResponsive } from '../components/AppFrame';
 import { Btn, Card, Row, T } from '../components/atoms';
 import { useToast } from '../components/Toast';
+import { useActions } from '../state/AppActions';
 import { colors, fonts, radius } from '../theme';
 
 const products = [
@@ -24,6 +25,7 @@ export function QuickSaleScreen({ onClose }: { onClose: () => void }) {
   const { isDesktop } = useResponsive();
   const productCols = isDesktop ? 3 : 2;
   const toast = useToast();
+  const actions = useActions();
 
   const total = products.reduce((s, p) => s + (cart[p.id] || 0) * p.p, 0);
 
@@ -128,7 +130,7 @@ export function QuickSaleScreen({ onClose }: { onClose: () => void }) {
           full
           style={{ marginTop: 12 }}
           iconLeft={<Ionicons name="add" size={16} color={colors.ink2} />}
-          onPress={() => toast.show('পণ্য যোগ করার ফর্ম শীঘ্রই আসছে', 'info')}
+          onPress={() => actions.openOverlay('newProduct')}
         />
 
         <Card style={{ padding: 16, marginTop: 18 }}>

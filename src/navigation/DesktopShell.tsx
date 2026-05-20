@@ -13,7 +13,12 @@ import { LedgerScreen } from '../screens/LedgerScreen';
 import { MarketScreen } from '../screens/MarketScreen';
 import { MessagesScreen } from '../screens/MessagesScreen';
 import { MoreScreen } from '../screens/MoreScreen';
+import { NewDebtScreen } from '../screens/NewDebtScreen';
+import { NewProductScreen } from '../screens/NewProductScreen';
+import { NewTransactionScreen } from '../screens/NewTransactionScreen';
 import { OfflineHomeScreen } from '../screens/OfflineHomeScreen';
+import { OrderDetailsScreen } from '../screens/OrderDetailsScreen';
+import { PKSFReportScreen } from '../screens/PKSFReportScreen';
 import { POPortalScreen } from '../screens/POPortalScreen';
 import { QuickSaleScreen } from '../screens/QuickSaleScreen';
 import { SathiChatScreen } from '../screens/SathiChatScreen';
@@ -142,6 +147,21 @@ export function DesktopShell({ route, setRoute, overlay }: Props) {
       </DrawerOverlay>
       <DrawerOverlay open={overlay === 'journey'} onClose={actions.closeOverlay} width={560}>
         <JourneyScreen onClose={actions.closeOverlay} />
+      </DrawerOverlay>
+      <DrawerOverlay open={overlay === 'transaction'} onClose={actions.closeOverlay} width={560}>
+        <NewTransactionScreen onClose={actions.closeOverlay} />
+      </DrawerOverlay>
+      <DrawerOverlay open={overlay === 'order'} onClose={actions.closeOverlay} width={680}>
+        <OrderDetailsScreen onClose={actions.closeOverlay} orderId={actions.overlayPrefill} />
+      </DrawerOverlay>
+      <DrawerOverlay open={overlay === 'pksfReport'} onClose={actions.closeOverlay} width={720}>
+        <PKSFReportScreen onClose={actions.closeOverlay} />
+      </DrawerOverlay>
+      <DrawerOverlay open={overlay === 'newProduct'} onClose={actions.closeOverlay} width={520}>
+        <NewProductScreen onClose={actions.closeOverlay} />
+      </DrawerOverlay>
+      <DrawerOverlay open={overlay === 'newDebt'} onClose={actions.closeOverlay} width={520}>
+        <NewDebtScreen onClose={actions.closeOverlay} />
       </DrawerOverlay>
 
       {overlay === 'po' && user?.hasPOPortal ? (

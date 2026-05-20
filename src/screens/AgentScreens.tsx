@@ -1,11 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import { Pressable, ScrollView, Switch, View } from 'react-native';
+import { Pressable, ScrollView, Switch, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Btn, Card, Chip, PulseDot, Row, SathiBadge, T } from '../components/atoms';
 import { useToast } from '../components/Toast';
 import { useActions } from '../state/AppActions';
-import { colors } from '../theme';
+import { colors, fonts, radius } from '../theme';
 
 export function AgentLiveScreen({ onClose }: { onClose: () => void }) {
   const actions = useActions();
@@ -171,9 +171,21 @@ export function ApprovalsScreen({ onClose }: { onClose: () => void }) {
     { id: 2, who: 'সুমাইয়া আক্তার', what: 'অভিযোগের উত্তর পাঠানো', kind: 'coral' as const, time: '১২ মি' },
     { id: 3, who: 'রহমান ট্রেডার্স', what: 'রিঅর্ডার ৳৯,৬০০', kind: 'teal' as const, time: '২২ মি' },
   ]);
+  const [editId, setEditId] = useState<number | null>(null);
+  const [draft, setDraft] = useState('');
   const resolve = (id: number, label: string) => {
     setPending((p) => p.filter((x) => x.id !== id));
+    setEditId(null);
     toast.show(label, label.includes('অনুমোদন') ? 'success' : 'info');
+  };
+  const startEdit = (id: number, current: string) => {
+    setEditId(id);
+    setDraft(current);
+  };
+  const saveEdit = (id: number) => {
+    setPending((p) => p.map((x) => (x.id === id ? { ...x, what: draft } : x)));
+    setEditId(null);
+    toast.show('সম্পাদনা সংরক্ষিত হয়েছে', 'success');
   };
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
@@ -197,39 +209,84 @@ export function ApprovalsScreen({ onClose }: { onClose: () => void }) {
             <T size={13} color={colors.ink2} style={{ marginTop: 4 }}>আপাতত অনুমোদনের অপেক্ষায় কিছু নেই</T>
           </View>
         ) : (
-          pending.map((p) => (
-            <Card key={p.id} style={{ padding: 16, marginBottom: 10 }}>
-              <Row style={{ justifyContent: 'space-between' }}>
-                <Chip kind={p.kind} size={11}>{p.kind === 'coral' ? 'অভিযোগ' : p.kind === 'amber' ? 'মূল্য' : 'অর্ডার'}</Chip>
-                <T size={11} color={colors.ink2}>{p.time}</T>
-              </Row>
-              <T weight="b" size={15} style={{ marginTop: 8 }}>{p.what}</T>
-              <T size={13} color={colors.ink2} style={{ marginTop: 2 }}>পক্ষে: {p.who}</T>
-              <Row gap={8} style={{ marginTop: 12 }}>
-                <Btn
-                  kind="teal"
-                  label="অনুমোদন"
-                  size="sm"
-                  full
-                  style={{ flex: 1 }}
-                  onPress={() => resolve(p.id, `অনুমোদিত: ${p.what}`)}
-                  iconRight={<Ionicons name="checkmark" size={14} color="#fff" />}
-                />
-                <Btn
-                  kind="greyOutline"
-                  label="সম্পাদনা"
-                  size="sm"
-                  onPress={() => toast.show('সম্পাদনা শীঘ্রই আসছে', 'info')}
-                />
-                <Btn
-                  kind="coralOutline"
-                  label="বাতিল"
-                  size="sm"
-                  onPress={() => resolve(p.id, `বাতিল: ${p.what}`)}
-                />
-              </Row>
-            </Card>
-          ))
+          pending.map((p) => {
+            const editing = editId === p.id;
+            return (
+              <Card key={p.id} style={{ padding: 16, marginBottom: 10 }}>
+                <Row style={{ justifyContent: 'space-between' }}>
+                  <Chip kind={p.kind} size={11}>{p.kind === 'coral' ? 'অভিযোগ' : p.kind === 'amber' ? 'মূল্য' : 'অর্ডার'}</Chip>
+                  <T size={11} color={colors.ink2}>{p.time}</T>
+                </Row>
+                {editing ? (
+                  <TextInput
+                    value={draft}
+                    onChangeText={setDraft}
+                    multiline
+                    style={{
+                      marginTop: 8,
+                      padding: 10,
+                      borderRadius: radius.md,
+                      backgroundColor: colors.bg,
+                      borderWidth: 1,
+                      borderColor: colors.teal,
+                      fontFamily: fonts.semibold,
+                      fontSize: 15,
+                      color: colors.ink,
+                      minHeight: 60,
+                    }}
+                  />
+                ) : (
+                  <T weight="b" size={15} style={{ marginTop: 8 }}>{p.what}</T>
+                )}
+                <T size={13} color={colors.ink2} style={{ marginTop: 2 }}>পক্ষে: {p.who}</T>
+                <Row gap={8} style={{ marginTop: 12 }}>
+                  {editing ? (
+                    <>
+                      <Btn
+                        kind="teal"
+                        label="সংরক্ষণ করুন"
+                        size="sm"
+                        full
+                        style={{ flex: 1 }}
+                        onPress={() => saveEdit(p.id)}
+                        iconRight={<Ionicons name="checkmark" size={14} color="#fff" />}
+                      />
+                      <Btn
+                        kind="greyOutline"
+                        label="বাতিল"
+                        size="sm"
+                        onPress={() => setEditId(null)}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <Btn
+                        kind="teal"
+                        label="অনুমোদন"
+                        size="sm"
+                        full
+                        style={{ flex: 1 }}
+                        onPress={() => resolve(p.id, `অনুমোদিত: ${p.what}`)}
+                        iconRight={<Ionicons name="checkmark" size={14} color="#fff" />}
+                      />
+                      <Btn
+                        kind="greyOutline"
+                        label="সম্পাদনা"
+                        size="sm"
+                        onPress={() => startEdit(p.id, p.what)}
+                      />
+                      <Btn
+                        kind="coralOutline"
+                        label="বাতিল"
+                        size="sm"
+                        onPress={() => resolve(p.id, `বাতিল: ${p.what}`)}
+                      />
+                    </>
+                  )}
+                </Row>
+              </Card>
+            );
+          })
         )}
         </View>
       </ScrollView>

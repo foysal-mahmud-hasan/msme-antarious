@@ -15,6 +15,9 @@ import { AppFrame } from './src/components/AppFrame';
 import { T } from './src/components/atoms';
 import { ToastProvider } from './src/components/Toast';
 import { Shell } from './src/navigation/Shell';
+import { DebtsProvider } from './src/state/DebtsStore';
+import { ProductsProvider } from './src/state/ProductsStore';
+import { TransactionsProvider } from './src/state/TransactionsStore';
 import { colors } from './src/theme';
 
 function Gate() {
@@ -33,7 +36,7 @@ function Gate() {
             marginBottom: 16,
           }}
         >
-          <T weight="b" color="#fff" size={48}>উ</T>
+          <T weight="b" color="#fff" size={48}>আ</T>
         </View>
         <ActivityIndicator color={colors.saffron} />
       </View>
@@ -64,7 +67,13 @@ export default function App() {
       <AppFrame>
         <ToastProvider>
           <AuthProvider>
-            <Gate />
+            <TransactionsProvider>
+              <ProductsProvider>
+                <DebtsProvider>
+                  <Gate />
+                </DebtsProvider>
+              </ProductsProvider>
+            </TransactionsProvider>
           </AuthProvider>
         </ToastProvider>
       </AppFrame>

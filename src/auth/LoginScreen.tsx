@@ -126,13 +126,13 @@ export function LoginScreen() {
                     width: 38,
                     height: 38,
                     borderRadius: 19,
-                    backgroundColor: c.username === 'joy' ? '#1d4ed8' : colors.saffron,
+                    backgroundColor: c.username === 'asif' ? '#1d4ed8' : colors.saffron,
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}
                 >
                   <T weight="b" color="#fff" size={15}>
-                    {c.username === 'joy' ? 'জ' : 'ফ'}
+                    {c.username === 'asif' ? 'আ' : 'ফ'}
                   </T>
                 </View>
                 <View style={{ flex: 1 }}>
