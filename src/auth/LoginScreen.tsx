@@ -53,11 +53,11 @@ export function LoginScreen() {
         <View style={{ width: '100%', maxWidth: 460, alignSelf: 'center' }}>
           <View style={styles.logoWrap}>
             <View style={styles.logoBlock}>
-              <T weight="b" color="#fff" size={64}>উ</T>
+              <T weight="b" color="#fff" size={64}>আ</T>
             </View>
-            <T weight="b" size={26} style={{ marginTop: 16 }}>উদ্যোম</T>
+            <T weight="b" size={26} style={{ marginTop: 16 }}>আরোপণ</T>
             <T size={13} color={colors.ink2} style={{ marginTop: 4 }}>
-              Uddyom · MSME ব্যবসায়িক সঙ্গী
+              Aropon · MSME ব্যবসায়িক সঙ্গী
             </T>
             <T size={11.5} color={colors.ink2} style={{ marginTop: 2 }}>
               by Antarious × PKSF

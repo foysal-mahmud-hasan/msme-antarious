@@ -44,13 +44,10 @@ export function AppHeader({
       </View>
       {/* Right-cluster (notification, avatar) is only shown on mobile; the sidebar handles these on desktop */}
       {!isDesktop ? (
-        <Row gap={8}>
+        <Row gap={8} style={{ flexShrink: 0 }}>
           {showAgentRunning ? (
-            <Pressable onPress={onAgentPress} style={styles.agentPill}>
-              <PulseDot size={6} />
-              <T color={colors.tealDark} weight="b" size={11.5}>
-                সাথী চলছে
-              </T>
+            <Pressable onPress={onAgentPress} hitSlop={6} style={styles.iconBtn}>
+              <PulseDot size={8} />
             </Pressable>
           ) : null}
           <Pressable onPress={onNotificationPress} hitSlop={6} style={styles.iconBtn}>
@@ -99,16 +96,5 @@ const styles = StyleSheet.create({
     backgroundColor: colors.coral,
     borderWidth: 1.5,
     borderColor: '#fff',
-  },
-  agentPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 12,
-    backgroundColor: 'rgba(46,196,182,0.16)',
-    borderWidth: 1,
-    borderColor: 'rgba(46,196,182,0.35)',
   },
 });

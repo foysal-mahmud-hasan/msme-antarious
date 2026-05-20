@@ -1,4 +1,4 @@
-# উদ্যোম · Uddyom — Expo App
+# আরোপণ · Aropon — Expo App
 
 AI-assisted MSME companion app for Bangladeshi micro-entrepreneurs, with a PKSF Project Officer (PO) portal. Built with Expo (SDK 54) + React Native + TypeScript. This repo is a **client-presentable dummy** — all data is hard-coded so it can be demoed without a backend.
 

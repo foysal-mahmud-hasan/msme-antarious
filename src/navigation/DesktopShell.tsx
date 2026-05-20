@@ -46,11 +46,11 @@ export function DesktopShell({ route, setRoute, overlay }: Props) {
         <View style={{ padding: 18, paddingBottom: 12 }}>
           <Row gap={10}>
             <View style={styles.logoTile}>
-              <T weight="b" color="#fff" size={20}>উ</T>
+              <T weight="b" color="#fff" size={20}>আ</T>
             </View>
             <View>
-              <T weight="b" size={16}>উদ্যোম</T>
-              <T size={10.5} color={colors.ink2}>Uddyom · MSME</T>
+              <T weight="b" size={16}>আরোপণ</T>
+              <T size={10.5} color={colors.ink2}>Aropon · MSME</T>
             </View>
           </Row>
         </View>

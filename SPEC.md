@@ -1,6 +1,6 @@
-# উদ্যোম · Uddyom — Technical Specification
+# আরোপণ · Aropon — Technical Specification
 
-**Project:** Uddyom — AI Business Companion for Bangladeshi MSMEs
+**Project:** Aropon — AI Business Companion for Bangladeshi MSMEs
 **Partner:** Antarious × PKSF (Palli Karma-Sahayak Foundation)
 **Document:** Technical specification & feature inventory
 **Version:** 1.0 (presentation build)
@@ -10,7 +10,7 @@
 
 ## 1. Executive summary
 
-Uddyom is a bilingual (Bengali-first, with English secondary) mobile + web business companion for Bangladeshi micro, small, and medium-enterprise (MSME) owners — particularly women entrepreneurs in PKSF's microfinance network. The app combines:
+Aropon is a bilingual (Bengali-first, with English secondary) mobile + web business companion for Bangladeshi micro, small, and medium-enterprise (MSME) owners — particularly women entrepreneurs in PKSF's microfinance network. The app combines:
 
 1. **An "always-on" AI assistant ("সাথী"/Saathi)** that observes orders, customer messages, market trends, and finance, then proposes or auto-executes actions under the user's trust controls.
 2. **An offline-capable cash-register + ledger + হাট (rural market) workflow** for sellers without consistent internet or digital presence.
@@ -134,7 +134,7 @@ Three sub-tabs:
 
 - **আয়-ব্যয়** — Weekly stat pills, dual-bar chart (income + expense per day), recent transactions ledger.
 - **ইনভেন্টরি** — 6 stock items with quantity & low-stock chip; Saathi summary banner ("২টি পণ্য কম স্টক").
-- **PKSF রিপোর্ট** — Loan-health "৭২ / ১০০" with monthly delta, 4-component score breakdown bars (নিয়মিত আয়, হিসাব রক্ষণ, গ্রাহক বৃদ্ধি, ডিজিটাল উপস্থিতি), Saathi recommendation, CTA → "বিস্তারিত রিপোর্ট".
+- **PKSF রিপোর্ট** — Loan-health "৭২০ / ১০০০" with monthly delta, 4-component score breakdown bars (নিয়মিত আয়, হিসাব রক্ষণ, গ্রাহক বৃদ্ধি, ডিজিটাল উপস্থিতি), Saathi recommendation, CTA → "বিস্তারিত রিপোর্ট".
 
 ### 4.11 সাথী Chat — AI assistant overlay
 

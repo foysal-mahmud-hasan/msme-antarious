@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import { useResponsive } from '../components/AppFrame';
 import { AppActions, AppActionsProvider, OverlayName, Route } from '../state/AppActions';
@@ -18,9 +18,19 @@ export function Shell() {
   const { user } = useAuth();
 
   const [route, setRoute] = useState<Route>('home');
-  const [overlay, setOverlay] = useState<OverlayName | null>(null);
+  const [overlay, setOverlay] = useState<OverlayName | null>(user?.hasPOPortal ? 'po' : null);
   const [overlayPrefill, setOverlayPrefill] = useState<string | undefined>(undefined);
   const [subTabs, setSubTabs] = useState<Record<Route, string>>(DEFAULT_SUB_TABS);
+
+  const lastUserId = useRef<string | null>(user?.id ?? null);
+  useEffect(() => {
+    if (user?.id !== lastUserId.current) {
+      lastUserId.current = user?.id ?? null;
+      setOverlay(user?.hasPOPortal ? 'po' : null);
+      setOverlayPrefill(undefined);
+      setRoute('home');
+    }
+  }, [user?.id, user?.hasPOPortal]);
 
   const actions: AppActions = useMemo(
     () => ({

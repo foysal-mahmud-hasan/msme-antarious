@@ -264,7 +264,7 @@ function HomeWeekly() {
               <Ionicons name="open-outline" size={16} color={colors.ink2} />
             </Row>
             <Row style={{ justifyContent: 'space-between', marginTop: 8 }}>
-              <T weight="b" size={32} color={colors.green}>৭২ / ১০০</T>
+              <T weight="b" size={32} color={colors.green}>৭২০ / ১০০০</T>
               <Chip kind="green">▲ +৪</Chip>
             </Row>
             <Row gap={3} style={{ marginTop: 18, height: 60, alignItems: 'flex-end' }}>

@@ -6,6 +6,7 @@ import { useAuth } from '../auth/AuthContext';
 import { useResponsive } from '../components/AppFrame';
 import { Avatar, Btn, Card, Chip, Row, SathiBadge, T } from '../components/atoms';
 import { useToast } from '../components/Toast';
+import { toBn } from '../data/strings';
 import { useActions } from '../state/AppActions';
 import { colors, fonts } from '../theme';
 
@@ -53,7 +54,7 @@ export function POPortalScreen({ onClose }: { onClose: () => void }) {
           <T weight="b" color="#fff" size={14}>P</T>
         </View>
         <View style={{ flex: 1 }}>
-          <T weight="b" size={isDesktop ? 16 : 14}>PKSF · উদ্যোম PO ড্যাশবোর্ড</T>
+          <T weight="b" size={isDesktop ? 16 : 14}>PKSF · আরোপণ PO ড্যাশবোর্ড</T>
           <T size={11.5} color={colors.ink2}>Palli Karma-Sahayak Foundation</T>
         </View>
         {isDesktop ? (
@@ -203,7 +204,7 @@ function OverviewDesktop({ query }: { query: string }) {
               <T size={13} weight="s" style={{ flex: 1, marginLeft: 12 }} color={r.g.startsWith('-') ? '#b91c1c' : '#15803d'}>{r.g}</T>
               <Row gap={6} style={{ flex: 1 }}>
                 <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: dotColor(r.kind) }} />
-                <T size={13}>{r.s}</T>
+                <T size={13}>{toBn(r.s * 10)}</T>
               </Row>
               <View style={{ flex: 1.4 }}>
                 <Chip kind={r.kind === 'g' ? 'green' : r.kind === 'a' ? 'amber' : 'coral'} size={10}>{r.loan}</Chip>
@@ -299,7 +300,7 @@ function BeneficiariesDesktop({ openId, setOpenId, query }: { openId: number | n
                 <T size={13} weight="s" style={{ flex: 1, marginLeft: 12 }} color={r.g.startsWith('-') ? '#b91c1c' : '#15803d'}>{r.g}</T>
                 <Row gap={6} style={{ flex: 1 }}>
                   <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: dotColor(r.kind) }} />
-                  <T size={13}>{r.s}</T>
+                  <T size={13}>{toBn(r.s * 10)}</T>
                 </Row>
                 <View style={{ flex: 1.4 }}>
                   <Chip kind={r.kind === 'g' ? 'green' : r.kind === 'a' ? 'amber' : 'coral'} size={10}>{r.loan}</Chip>
@@ -438,7 +439,7 @@ function BeneficiariesMobile({ openId, setOpenId }: { openId: number | null; set
               <Row style={{ justifyContent: 'space-between', marginTop: 8 }}>
                 <Row gap={6}>
                   <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: dotColor(r.kind) }} />
-                  <T size={12}>স্কোর {r.s}</T>
+                  <T size={12}>স্কোর {toBn(r.s * 10)}</T>
                 </Row>
                 <Chip kind={r.kind === 'g' ? 'green' : r.kind === 'a' ? 'amber' : 'coral'} size={10}>{r.loan}</Chip>
               </Row>
@@ -511,7 +512,7 @@ function DetailPanel({ r }: { r: Row }) {
         {[
           { l: 'মাসিক রাজস্ব', v: `৳${r.rev}` },
           { l: '৩-মাস বৃদ্ধি', v: r.g, col: '#15803d' },
-          { l: 'স্বাস্থ্য', v: `${r.s}/১০০` },
+          { l: 'স্বাস্থ্য', v: `${toBn(r.s * 10)}/১০০০` },
           { l: 'ঋণ-যোগ্যতা', v: r.loan, col: dotColor(r.kind) },
         ].map((m) => (
           <View key={m.l} style={{ flex: 1, minWidth: 140, padding: 12, backgroundColor: '#fff', borderRadius: 10, borderWidth: 1, borderColor: '#e6e8ec' }}>

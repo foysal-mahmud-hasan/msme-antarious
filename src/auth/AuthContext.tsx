@@ -54,8 +54,8 @@ type AuthCtx = {
 
 const Ctx = createContext<AuthCtx | null>(null);
 
-const STORAGE_KEY = 'uddyom:auth:user';
-const OFFLINE_KEY = 'uddyom:auth:offline';
+const STORAGE_KEY = 'aropon:auth:user';
+const OFFLINE_KEY = 'aropon:auth:offline';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);

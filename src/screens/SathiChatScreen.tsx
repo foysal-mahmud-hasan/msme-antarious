@@ -152,7 +152,12 @@ export function SathiChatScreen({ onClose, prefill }: { onClose: () => void; pre
           ))}
         </ScrollView>
 
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 14, gap: 8, paddingBottom: 8 }}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={{ flexGrow: 0, maxHeight: 50 }}
+          contentContainerStyle={{ paddingHorizontal: 14, gap: 8, paddingBottom: 8, alignItems: 'center' }}
+        >
           {quickPrompts.map((p) => (
             <Pressable key={p} onPress={() => send(p)} style={styles.quick}>
               <T size={12.5} weight="m" color={colors.tealDark}>{p}</T>

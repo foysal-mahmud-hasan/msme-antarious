@@ -183,13 +183,13 @@ function PKSF() {
             <T size={28}>🏦</T>
           </View>
           <View style={{ flex: 1 }}>
-            <T weight="b" size={16}>PKSF · উদ্যোম স্কোর</T>
+            <T weight="b" size={16}>PKSF · আরোপণ স্কোর</T>
             <T size={12.5} color={colors.ink2} style={{ marginTop: 2 }}>আপনার ঋণ স্বাস্থ্য ভালো</T>
           </View>
         </Row>
         <Row style={{ marginTop: 14, alignItems: 'baseline', justifyContent: 'space-between' }}>
-          <T weight="b" size={36} color={colors.green}>৭২</T>
-          <T size={14} color={colors.ink2}>/ ১০০</T>
+          <T weight="b" size={36} color={colors.green}>৭২০</T>
+          <T size={14} color={colors.ink2}>/ ১০০০</T>
           <Chip kind="green" size={11}>▲ +৪ এই মাসে</Chip>
         </Row>
       </Card>

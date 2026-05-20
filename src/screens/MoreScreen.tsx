@@ -122,7 +122,7 @@ export function MoreScreen() {
         </Pressable>
 
         <T size={11} color={colors.ink2} style={{ textAlign: 'center', marginTop: 18 }}>
-          উদ্যোম · v1.0.0 — Antarious × PKSF
+          আরোপণ · v1.0.0 — Antarious × PKSF
         </T>
       </ScreenScroll>
     </View>
