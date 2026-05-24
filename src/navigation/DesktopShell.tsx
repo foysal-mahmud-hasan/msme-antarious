@@ -21,7 +21,7 @@ import { NewTransactionScreen } from '../screens/NewTransactionScreen';
 import { OfflineHomeScreen } from '../screens/OfflineHomeScreen';
 import { OrderDetailsScreen } from '../screens/OrderDetailsScreen';
 import { PKSFReportScreen } from '../screens/PKSFReportScreen';
-import { POPortalScreen } from '../screens/POPortalScreen';
+import { LenderPortalScreen } from '../screens/LenderPortalScreen';
 import { PricingScreen } from '../screens/PricingScreen';
 import { QuickSaleScreen } from '../screens/QuickSaleScreen';
 import { SathiChatScreen } from '../screens/SathiChatScreen';
@@ -192,9 +192,9 @@ export function DesktopShell({ route, setRoute, overlay }: Props) {
         <SathiMemoryScreen onClose={actions.closeOverlay} />
       </DrawerOverlay>
 
-      {overlay === 'po' && user?.hasPOPortal ? (
+      {(overlay === 'lender' || (overlay === 'po' && user?.hasPOPortal)) ? (
         <View style={StyleSheet.absoluteFill}>
-          <POPortalScreen onClose={actions.closeOverlay} />
+          <LenderPortalScreen onClose={actions.closeOverlay} />
         </View>
       ) : null}
     </View>

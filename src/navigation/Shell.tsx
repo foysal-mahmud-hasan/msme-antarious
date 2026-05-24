@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Easing, Pressable, StyleSheet, View } from 'react-native';
 import { useAuth } from '../auth/AuthContext';
 import { useResponsive } from '../components/AppFrame';
-import { POPortalScreen } from '../screens/POPortalScreen';
+import { LenderPortalScreen } from '../screens/LenderPortalScreen';
 import { SathiChatScreen } from '../screens/SathiChatScreen';
 import { AppActions, AppActionsProvider, OverlayName, Route } from '../state/AppActions';
 import { colors } from '../theme';
@@ -105,7 +105,7 @@ function POOnlyShell({
 }) {
   return (
     <View style={{ flex: 1 }}>
-      <POPortalScreen onClose={onSignOut} />
+      <LenderPortalScreen onClose={onSignOut} />
       <SlideOverlay open={overlay === 'sathi'} onClose={onCloseOverlay}>
         <SathiChatScreen onClose={onCloseOverlay} prefill={overlayPrefill} />
       </SlideOverlay>
