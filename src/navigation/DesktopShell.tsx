@@ -25,6 +25,9 @@ import { POPortalScreen } from '../screens/POPortalScreen';
 import { PricingScreen } from '../screens/PricingScreen';
 import { QuickSaleScreen } from '../screens/QuickSaleScreen';
 import { SathiChatScreen } from '../screens/SathiChatScreen';
+import { SathiDayScreen } from '../screens/SathiDayScreen';
+import { SathiMemoryScreen } from '../screens/SathiMemoryScreen';
+import { TrustJourneyScreen } from '../screens/TrustJourneyScreen';
 import { WebsiteScreen } from '../screens/WebsiteScreen';
 import { OverlayName, Route, useActions } from '../state/AppActions';
 import { colors } from '../theme';
@@ -178,6 +181,15 @@ export function DesktopShell({ route, setRoute, overlay }: Props) {
       </DrawerOverlay>
       <DrawerOverlay open={overlay === 'pricing'} onClose={actions.closeOverlay} width={640}>
         <PricingScreen onClose={actions.closeOverlay} />
+      </DrawerOverlay>
+      <DrawerOverlay open={overlay === 'trust'} onClose={actions.closeOverlay} width={560}>
+        <TrustJourneyScreen onClose={actions.closeOverlay} />
+      </DrawerOverlay>
+      <DrawerOverlay open={overlay === 'day'} onClose={actions.closeOverlay} width={560}>
+        <SathiDayScreen onClose={actions.closeOverlay} />
+      </DrawerOverlay>
+      <DrawerOverlay open={overlay === 'memory'} onClose={actions.closeOverlay} width={520}>
+        <SathiMemoryScreen onClose={actions.closeOverlay} />
       </DrawerOverlay>
 
       {overlay === 'po' && user?.hasPOPortal ? (

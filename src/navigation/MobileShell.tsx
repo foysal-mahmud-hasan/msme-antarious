@@ -25,6 +25,9 @@ import { POPortalScreen } from '../screens/POPortalScreen';
 import { PricingScreen } from '../screens/PricingScreen';
 import { QuickSaleScreen } from '../screens/QuickSaleScreen';
 import { SathiChatScreen } from '../screens/SathiChatScreen';
+import { SathiDayScreen } from '../screens/SathiDayScreen';
+import { SathiMemoryScreen } from '../screens/SathiMemoryScreen';
+import { TrustJourneyScreen } from '../screens/TrustJourneyScreen';
 import { WebsiteScreen } from '../screens/WebsiteScreen';
 import { OverlayName, Route, useActions } from '../state/AppActions';
 import { colors } from '../theme';
@@ -110,6 +113,15 @@ export function MobileShell({ route, setRoute, overlay }: Props) {
       </Overlay>
       <Overlay open={overlay === 'pricing'}>
         <PricingScreen onClose={actions.closeOverlay} />
+      </Overlay>
+      <Overlay open={overlay === 'trust'}>
+        <TrustJourneyScreen onClose={actions.closeOverlay} />
+      </Overlay>
+      <Overlay open={overlay === 'day'}>
+        <SathiDayScreen onClose={actions.closeOverlay} />
+      </Overlay>
+      <Overlay open={overlay === 'memory'}>
+        <SathiMemoryScreen onClose={actions.closeOverlay} />
       </Overlay>
     </View>
   );
