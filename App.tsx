@@ -15,6 +15,11 @@ import { AppFrame } from './src/components/AppFrame';
 import { T } from './src/components/atoms';
 import { ToastProvider } from './src/components/Toast';
 import { Shell } from './src/navigation/Shell';
+import {
+  SathiOnboardingScreen,
+  isOnboarded,
+  markOnboarded,
+} from './src/screens/SathiOnboardingScreen';
 import { DebtsProvider } from './src/state/DebtsStore';
 import { ProductsProvider } from './src/state/ProductsStore';
 import { TransactionsProvider } from './src/state/TransactionsStore';
@@ -22,7 +27,32 @@ import { colors } from './src/theme';
 
 function Gate() {
   const { user, loading } = useAuth();
-  if (loading) {
+  const [checkingOnboard, setCheckingOnboard] = React.useState(true);
+  const [needsOnboarding, setNeedsOnboarding] = React.useState(false);
+
+  React.useEffect(() => {
+    let alive = true;
+    (async () => {
+      if (!user) {
+        if (alive) {
+          setNeedsOnboarding(false);
+          setCheckingOnboard(false);
+        }
+        return;
+      }
+      setCheckingOnboard(true);
+      const done = await isOnboarded(user.id);
+      if (alive) {
+        setNeedsOnboarding(!done);
+        setCheckingOnboard(false);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [user?.id]);
+
+  if (loading || (user && checkingOnboard)) {
     return (
       <View style={{ flex: 1, backgroundColor: colors.bg, alignItems: 'center', justifyContent: 'center' }}>
         <View
@@ -42,7 +72,19 @@ function Gate() {
       </View>
     );
   }
-  return user ? <Shell /> : <LoginScreen />;
+  if (!user) return <LoginScreen />;
+  if (needsOnboarding) {
+    return (
+      <SathiOnboardingScreen
+        defaultName={user.bengaliName}
+        onFinish={async (payload) => {
+          await markOnboarded(user.id, payload);
+          setNeedsOnboarding(false);
+        }}
+      />
+    );
+  }
+  return <Shell />;
 }
 
 export default function App() {
