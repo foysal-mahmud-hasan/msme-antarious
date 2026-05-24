@@ -5,6 +5,8 @@ import { useAuth } from '../auth/AuthContext';
 import { Row, T } from '../components/atoms';
 import { SathiFAB } from '../components/SathiFAB';
 import { AgentLiveScreen, ApprovalsScreen, AutopilotScreen } from '../screens/AgentScreens';
+import { BrandScreen } from '../screens/BrandScreen';
+import { CreditScreen } from '../screens/CreditScreen';
 import { FinanceScreen } from '../screens/FinanceScreen';
 import { HaatPrepScreen } from '../screens/HaatPrepScreen';
 import { HomeScreen } from '../screens/HomeScreen';
@@ -20,8 +22,10 @@ import { OfflineHomeScreen } from '../screens/OfflineHomeScreen';
 import { OrderDetailsScreen } from '../screens/OrderDetailsScreen';
 import { PKSFReportScreen } from '../screens/PKSFReportScreen';
 import { POPortalScreen } from '../screens/POPortalScreen';
+import { PricingScreen } from '../screens/PricingScreen';
 import { QuickSaleScreen } from '../screens/QuickSaleScreen';
 import { SathiChatScreen } from '../screens/SathiChatScreen';
+import { WebsiteScreen } from '../screens/WebsiteScreen';
 import { OverlayName, Route, useActions } from '../state/AppActions';
 import { colors } from '../theme';
 
@@ -94,6 +98,18 @@ export function MobileShell({ route, setRoute, overlay }: Props) {
       </Overlay>
       <Overlay open={overlay === 'newDebt'}>
         <NewDebtScreen onClose={actions.closeOverlay} />
+      </Overlay>
+      <Overlay open={overlay === 'credit'}>
+        <CreditScreen onClose={actions.closeOverlay} />
+      </Overlay>
+      <Overlay open={overlay === 'brand'}>
+        <BrandScreen onClose={actions.closeOverlay} />
+      </Overlay>
+      <Overlay open={overlay === 'website'}>
+        <WebsiteScreen onClose={actions.closeOverlay} />
+      </Overlay>
+      <Overlay open={overlay === 'pricing'}>
+        <PricingScreen onClose={actions.closeOverlay} />
       </Overlay>
     </View>
   );

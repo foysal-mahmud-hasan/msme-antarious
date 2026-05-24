@@ -5,6 +5,8 @@ import { useAuth } from '../auth/AuthContext';
 import { useResponsive } from '../components/AppFrame';
 import { Avatar, PulseDot, Row, T } from '../components/atoms';
 import { AgentLiveScreen, ApprovalsScreen, AutopilotScreen } from '../screens/AgentScreens';
+import { BrandScreen } from '../screens/BrandScreen';
+import { CreditScreen } from '../screens/CreditScreen';
 import { FinanceScreen } from '../screens/FinanceScreen';
 import { HaatPrepScreen } from '../screens/HaatPrepScreen';
 import { HomeScreen } from '../screens/HomeScreen';
@@ -20,8 +22,10 @@ import { OfflineHomeScreen } from '../screens/OfflineHomeScreen';
 import { OrderDetailsScreen } from '../screens/OrderDetailsScreen';
 import { PKSFReportScreen } from '../screens/PKSFReportScreen';
 import { POPortalScreen } from '../screens/POPortalScreen';
+import { PricingScreen } from '../screens/PricingScreen';
 import { QuickSaleScreen } from '../screens/QuickSaleScreen';
 import { SathiChatScreen } from '../screens/SathiChatScreen';
+import { WebsiteScreen } from '../screens/WebsiteScreen';
 import { OverlayName, Route, useActions } from '../state/AppActions';
 import { colors } from '../theme';
 
@@ -162,6 +166,18 @@ export function DesktopShell({ route, setRoute, overlay }: Props) {
       </DrawerOverlay>
       <DrawerOverlay open={overlay === 'newDebt'} onClose={actions.closeOverlay} width={520}>
         <NewDebtScreen onClose={actions.closeOverlay} />
+      </DrawerOverlay>
+      <DrawerOverlay open={overlay === 'credit'} onClose={actions.closeOverlay} width={560}>
+        <CreditScreen onClose={actions.closeOverlay} />
+      </DrawerOverlay>
+      <DrawerOverlay open={overlay === 'brand'} onClose={actions.closeOverlay} width={560}>
+        <BrandScreen onClose={actions.closeOverlay} />
+      </DrawerOverlay>
+      <DrawerOverlay open={overlay === 'website'} onClose={actions.closeOverlay} width={640}>
+        <WebsiteScreen onClose={actions.closeOverlay} />
+      </DrawerOverlay>
+      <DrawerOverlay open={overlay === 'pricing'} onClose={actions.closeOverlay} width={640}>
+        <PricingScreen onClose={actions.closeOverlay} />
       </DrawerOverlay>
 
       {overlay === 'po' && user?.hasPOPortal ? (
