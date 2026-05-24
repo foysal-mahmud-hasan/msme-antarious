@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Pressable, View } from 'react-native';
+import Svg, { Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { useAuth } from '../auth/AuthContext';
 import { AppHeader } from '../components/AppHeader';
 import { Btn, Card, Chip, Row, SathiBadge, SectionHeader, T } from '../components/atoms';
@@ -53,6 +54,14 @@ function HomeToday() {
   const actions = useActions();
   return (
     <ScreenScroll>
+      <CreditHero onPress={() => actions.openOverlay('credit')} />
+      <View style={{ height: 14 }} />
+      <SathiMorningBrief
+        onOpenAcc={() => actions.goto('finance')}
+        onOpenAgent={() => actions.openOverlay('agent')}
+      />
+      <View style={{ height: 14 }} />
+
       <Row gap={12}>
         <StatPill value="৳২,৪০০" label="আজকের আয়" tint={colors.greenSoft} valueColor={colors.green} />
         <StatPill value="৫টি" label="অর্ডার" />
@@ -76,17 +85,17 @@ function HomeToday() {
       </ResponsiveGrid>
 
       <View style={{ height: 14 }} />
-      <Pressable onPress={() => actions.goto('finance', 'pksf')}>
+      <Pressable onPress={() => actions.openOverlay('lender')}>
         <Card tinted={colors.tealSoft} style={{ padding: 14 }}>
           <Row gap={12}>
             <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' }}>
               <T size={22}>🏦</T>
             </View>
             <View style={{ flex: 1 }}>
-              <T weight="b" size={14}>সাপ্তাহিক PKSF রিপোর্ট পাঠানো হয়েছে</T>
+              <T weight="b" size={14}>সাপ্তাহিক রিপোর্ট পাঠানো হয়েছে</T>
               <Row gap={4} style={{ marginTop: 2 }}>
-                <T size={12.5} color={colors.ink2}>আপনার ঋণ স্বাস্থ্য:</T>
-                <T size={12.5} weight="b" color={colors.green}>ভালো</T>
+                <T size={12.5} color={colors.ink2}>BRAC মাইক্রোফিন্যান্স · ঋণ স্বাস্থ্য:</T>
+                <T size={12.5} weight="b" color={colors.green}>উত্তম</T>
                 <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: colors.green }} />
               </Row>
             </View>
@@ -94,7 +103,186 @@ function HomeToday() {
           </Row>
         </Card>
       </Pressable>
+
+      <SectionHeader title="সাথীর সাথে আরও করুন" />
+      <ResponsiveGrid columns={{ mobile: 2, tablet: 2, desktop: 4 }} gap={10}>
+        <ExploreTile
+          emoji="📊"
+          label="অটো হিসাব"
+          sub="সব লেনদেন স্বয়ংক্রিয়"
+          bg={colors.greenSoft}
+          fg={colors.green}
+          onPress={() => actions.goto('finance')}
+        />
+        <ExploreTile
+          emoji="🎨"
+          label="ব্র্যান্ড স্টুডিও"
+          sub="লোগো · রঙ · কণ্ঠ"
+          bg={colors.saffronSoft}
+          fg={colors.saffronDark}
+          badge="Pro"
+          onPress={() => actions.openOverlay('brand')}
+        />
+        <ExploreTile
+          emoji="🌐"
+          label="ওয়েবসাইট"
+          sub="৬টি টেমপ্লেট থেকে বেছে নিন"
+          bg="rgba(139,92,246,0.1)"
+          fg="#7c3aed"
+          badge="Premium"
+          onPress={() => actions.openOverlay('website')}
+        />
+        <ExploreTile
+          emoji="💎"
+          label="আপগ্রেড"
+          sub="আরও ফিচার আনলক করুন"
+          bg="rgba(14,165,233,0.1)"
+          fg="#0284c7"
+          onPress={() => actions.openOverlay('pricing')}
+        />
+      </ResponsiveGrid>
     </ScreenScroll>
+  );
+}
+
+function CreditHero({ onPress }: { onPress: () => void }) {
+  const score = 720;
+  const max = 1000;
+  const radius = 40;
+  const C = 2 * Math.PI * radius;
+  const offset = C * (1 - score / max);
+  return (
+    <Pressable onPress={onPress}>
+      <View
+        style={{
+          backgroundColor: '#2d1b3d',
+          borderRadius: 22,
+          padding: 18,
+          overflow: 'hidden',
+        }}
+      >
+        <View
+          style={{
+            position: 'absolute',
+            top: -40,
+            right: -30,
+            width: 180,
+            height: 180,
+            borderRadius: 90,
+            backgroundColor: 'rgba(232,130,12,0.18)',
+          }}
+        />
+        <Row gap={14}>
+          <View style={{ width: 80, height: 80 }}>
+            <Svg width={80} height={80} viewBox="0 0 100 100">
+              <Defs>
+                <LinearGradient id="homeRing" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <Stop offset="0%" stopColor={colors.saffron} />
+                  <Stop offset="100%" stopColor="#22c55e" />
+                </LinearGradient>
+              </Defs>
+              <Circle cx="50" cy="50" r={radius} stroke="rgba(255,255,255,0.12)" strokeWidth={7} fill="none" />
+              <Circle
+                cx="50"
+                cy="50"
+                r={radius}
+                stroke="url(#homeRing)"
+                strokeWidth={7}
+                strokeLinecap="round"
+                fill="none"
+                strokeDasharray={`${C}, ${C}`}
+                strokeDashoffset={offset}
+                transform="rotate(-90 50 50)"
+              />
+            </Svg>
+            <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' }}>
+              <T weight="b" color="#fff" size={22}>৭২০</T>
+              <T size={9} color="rgba(255,255,255,0.7)">/ ১০০০</T>
+            </View>
+          </View>
+          <View style={{ flex: 1 }}>
+            <T size={10.5} color="rgba(255,255,255,0.7)" weight="b">আরোপণ ক্রেডিট স্কোর</T>
+            <T weight="b" size={18} color="#fff" style={{ marginTop: 2 }}>উত্তম স্তর · ঋণ-যোগ্য</T>
+            <Row gap={8} style={{ marginTop: 8 }}>
+              <View style={{ paddingHorizontal: 8, paddingVertical: 3, borderRadius: 999, backgroundColor: colors.green }}>
+                <T weight="b" size={11} color="#fff">▲ +৪০ এ মাসে</T>
+              </View>
+              <T size={11} color="rgba(255,255,255,0.8)">লক্ষ্য ৮৫০</T>
+            </Row>
+          </View>
+          <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.6)" />
+        </Row>
+      </View>
+    </Pressable>
+  );
+}
+
+function SathiMorningBrief({ onOpenAcc, onOpenAgent }: { onOpenAcc: () => void; onOpenAgent: () => void }) {
+  return (
+    <Card tinted={colors.tealSoft} style={{ padding: 14 }}>
+      <Row gap={8} style={{ alignItems: 'center' }}>
+        <SathiBadge size={28} />
+        <View style={{ flex: 1 }}>
+          <T weight="b" size={14} color={colors.tealDark}>সাথীর সকালের ব্রিফ</T>
+          <T size={11} color={colors.ink2}>সকাল ৮:৪১ · আজই আপডেট</T>
+        </View>
+        <View style={{ paddingHorizontal: 8, paddingVertical: 3, borderRadius: 999, backgroundColor: colors.green }}>
+          <T weight="b" size={10} color="#fff">● সক্রিয়</T>
+        </View>
+      </Row>
+      <T size={13.5} color={colors.ink} style={{ marginTop: 8, lineHeight: 22 }}>
+        সুপ্রভাত! 🌅 আজ এখন পর্যন্ত{' '}
+        <T weight="b" color={colors.green} size={13.5}>৭টি লেনদেন</T> ধরেছি (৳২,৪০০ আয়)। গতকাল ক্রেডিট স্কোর{' '}
+        <T weight="b" color={colors.green} size={13.5}>+৪</T> বেড়েছে। ৩টি কাস্টমার মেসেজের অপেক্ষায় — উত্তর তৈরি আছে।
+      </T>
+      <Row gap={8} style={{ marginTop: 12 }}>
+        <Btn kind="primary" size="sm" label="📊 আজকের হিসাব" onPress={onOpenAcc} />
+        <Btn kind="greyOutline" size="sm" label="সাথীর সাথে কথা →" onPress={onOpenAgent} />
+      </Row>
+    </Card>
+  );
+}
+
+function ExploreTile({
+  emoji,
+  label,
+  sub,
+  bg,
+  fg,
+  badge,
+  onPress,
+}: {
+  emoji: string;
+  label: string;
+  sub: string;
+  bg: string;
+  fg: string;
+  badge?: string;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable onPress={onPress} style={{ flex: 1 }}>
+      <Card tinted={bg} style={{ padding: 14, minHeight: 96 }}>
+        <T size={26}>{emoji}</T>
+        <T weight="b" size={14} color={fg} style={{ marginTop: 6 }}>{label}</T>
+        <T size={11.5} color={colors.ink2} style={{ marginTop: 2 }}>{sub}</T>
+        {badge ? (
+          <View
+            style={{
+              position: 'absolute',
+              top: 8,
+              right: 8,
+              paddingHorizontal: 6,
+              paddingVertical: 2,
+              borderRadius: 6,
+              backgroundColor: '#1A1A2E',
+            }}
+          >
+            <T weight="b" size={9} color="#fff">{badge}</T>
+          </View>
+        ) : null}
+      </Card>
+    </Pressable>
   );
 }
 

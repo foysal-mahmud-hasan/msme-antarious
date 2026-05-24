@@ -16,7 +16,15 @@ export type OverlayName =
   | 'order'
   | 'pksfReport'
   | 'newProduct'
-  | 'newDebt';
+  | 'newDebt'
+  | 'credit'
+  | 'brand'
+  | 'website'
+  | 'pricing'
+  | 'trust'
+  | 'day'
+  | 'memory'
+  | 'lender';
 
 export type AppActions = {
   /** Switch to a top-level tab, optionally setting its sub-tab. Closes any open overlay. */
