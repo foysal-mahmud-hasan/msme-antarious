@@ -138,28 +138,42 @@ export function LenderPortalScreen({ onClose }: { onClose: () => void }) {
           borderBottomWidth: 1,
           flexDirection: 'row',
           alignItems: 'center',
-          gap: 14,
-          flexWrap: 'wrap',
+          gap: 10,
         }}
       >
-        <Pressable onPress={onClose} hitSlop={8} style={iconBtn}>
-          <Ionicons name="arrow-back" size={20} color={colors.ink} />
-        </Pressable>
-        {!isDesktop && (
-          <Pressable onPress={() => setMenuOpen((o) => !o)} hitSlop={8} style={iconBtn}>
-            <Ionicons name={menuOpen ? 'close' : 'menu'} size={22} color={colors.ink} />
-          </Pressable>
+        {isDesktop ? (
+          <>
+            <Pressable onPress={onClose} hitSlop={8} style={iconBtn}>
+              <Ionicons name="arrow-back" size={20} color={colors.ink} />
+            </Pressable>
+            <View style={{ width: 36, height: 36, borderRadius: 8, backgroundColor: colors.saffron, alignItems: 'center', justifyContent: 'center' }}>
+              <T weight="b" size={18} color="#fff">আ</T>
+            </View>
+            <View style={{ flex: 1, minWidth: 0 }}>
+              <T weight="b" size={15} numberOfLines={1}>আরোপণ · ঋণদাতা পোর্টাল</T>
+              <T size={11.5} color="#64748b" weight="s" numberOfLines={1}>NGO · ব্যাংক · MFI · সব ধরনের প্রতিষ্ঠানের জন্য</T>
+            </View>
+          </>
+        ) : (
+          <>
+            <Pressable onPress={() => setMenuOpen((o) => !o)} hitSlop={8} style={iconBtnGhost}>
+              <Ionicons name={menuOpen ? 'close' : 'menu'} size={24} color={colors.ink} />
+            </Pressable>
+            <View style={{ flex: 1, minWidth: 0, marginLeft: 2 }}>
+              <T weight="b" size={17} numberOfLines={1}>আরোপণ</T>
+              <T size={11.5} color="#64748b" weight="s" numberOfLines={1}>ঋণদাতা পোর্টাল · ঢাকা শাখা</T>
+            </View>
+            <Pressable onPress={() => toast.show('৩টি নতুন বিজ্ঞপ্তি — শীঘ্রই আসছে', 'info')} hitSlop={8} style={iconBtnGhost}>
+              <Ionicons name="notifications-outline" size={21} color={colors.ink} />
+              <View style={{ position: 'absolute', top: 8, right: 9, width: 9, height: 9, borderRadius: 5, backgroundColor: '#dc2626', borderWidth: 1.5, borderColor: '#fff' }} />
+            </Pressable>
+            <Pressable onPress={() => setMenuOpen(true)} hitSlop={6}>
+              <View style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: '#dc2626', alignItems: 'center', justifyContent: 'center' }}>
+                <T weight="b" size={13} color="#fff">BR</T>
+              </View>
+            </Pressable>
+          </>
         )}
-        <Row gap={10}>
-          <View style={{ width: 36, height: 36, borderRadius: 8, backgroundColor: colors.saffron, alignItems: 'center', justifyContent: 'center' }}>
-            <T weight="b" size={18} color="#fff">আ</T>
-          </View>
-          <View>
-            <T weight="b" size={15}>আরোপণ · ঋণদাতা পোর্টাল</T>
-            <T size={11.5} color="#64748b" weight="s">NGO · ব্যাংক · MFI · সব ধরনের প্রতিষ্ঠানের জন্য</T>
-          </View>
-        </Row>
-        <View style={{ flex: 1, minWidth: 8 }} />
         {isDesktop && (
           <>
             <TextInput
@@ -250,41 +264,82 @@ export function LenderPortalScreen({ onClose }: { onClose: () => void }) {
         )}
       </View>
 
-      {/* Mobile nav menu (Law 4: sidebar items must stay accessible on mobile) */}
+      {/* Mobile nav drawer (Law 4: sidebar items must stay accessible on mobile) */}
       {!isDesktop && menuOpen && (
-        <View style={{ backgroundColor: '#fff', borderBottomColor: '#e6e8ec', borderBottomWidth: 1, paddingVertical: 10 }}>
-          <T size={10} weight="b" color="#94a3b8" style={{ paddingHorizontal: 16, marginBottom: 6, letterSpacing: 1.5 }}>ওভারভিউ</T>
-          {SIDEBAR_PRIMARY.map((it) => (
+        <>
+          <Pressable
+            onPress={() => setMenuOpen(false)}
+            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(15,23,42,0.35)', zIndex: 30 }}
+          />
+          <View style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: 290, backgroundColor: '#fff', zIndex: 31, paddingTop: 12, shadowColor: '#000', shadowOpacity: 0.18, shadowRadius: 24, shadowOffset: { width: 4, height: 0 }, elevation: 16 }}>
+            {/* Brand + FI identity header */}
+            <View style={{ paddingHorizontal: 16, paddingBottom: 14, borderBottomColor: '#eceef1', borderBottomWidth: 1 }}>
+              <Row gap={10} style={{ marginBottom: 14 }}>
+                <View style={{ width: 36, height: 36, borderRadius: 9, backgroundColor: colors.saffron, alignItems: 'center', justifyContent: 'center' }}>
+                  <T weight="b" size={18} color="#fff">আ</T>
+                </View>
+                <View style={{ flex: 1, minWidth: 0 }}>
+                  <T weight="b" size={15} numberOfLines={1}>আরোপণ</T>
+                  <T size={11} color="#64748b" numberOfLines={1}>ঋণদাতা পোর্টাল</T>
+                </View>
+                <Pressable onPress={() => setMenuOpen(false)} hitSlop={8} style={iconBtn}>
+                  <Ionicons name="close" size={20} color={colors.ink} />
+                </Pressable>
+              </Row>
+              <Row gap={10} style={{ padding: 10, backgroundColor: '#f8fafc', borderRadius: 12 }}>
+                <View style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: '#dc2626', alignItems: 'center', justifyContent: 'center' }}>
+                  <T weight="b" size={13} color="#fff">BR</T>
+                </View>
+                <View style={{ flex: 1, minWidth: 0 }}>
+                  <T weight="b" size={13} numberOfLines={1}>BRAC মাইক্রোফিন্যান্স</T>
+                  <T size={11} color="#64748b" numberOfLines={1}>মাসুদ রানা · PO · ঢাকা শাখা</T>
+                </View>
+              </Row>
+            </View>
+
+            <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingVertical: 10 }}>
+              <T size={10} weight="b" color="#94a3b8" style={{ paddingHorizontal: 16, marginBottom: 6, letterSpacing: 1.5 }}>ওভারভিউ</T>
+              {SIDEBAR_PRIMARY.map((it) => (
+                <Pressable
+                  key={it.l}
+                  onPress={() => setMenuOpen(false)}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 12,
+                    paddingHorizontal: 16,
+                    paddingVertical: 12,
+                    backgroundColor: it.active ? '#f0f9ff' : 'transparent',
+                    borderLeftWidth: 3,
+                    borderLeftColor: it.active ? '#1d4ed8' : 'transparent',
+                  }}
+                >
+                  <T size={17}>{it.e}</T>
+                  <T weight={it.active ? 'b' : 's'} size={14} color={it.active ? '#1d4ed8' : colors.ink}>{it.l}</T>
+                </Pressable>
+              ))}
+              <T size={10} weight="b" color="#94a3b8" style={{ paddingHorizontal: 16, marginTop: 14, marginBottom: 6, letterSpacing: 1.5 }}>প্রতিষ্ঠান</T>
+              {SIDEBAR_SECONDARY.map((it) => (
+                <Pressable
+                  key={it.l}
+                  onPress={() => setMenuOpen(false)}
+                  style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, paddingVertical: 12 }}
+                >
+                  <T size={17}>{it.e}</T>
+                  <T weight="s" size={14} color={colors.ink}>{it.l}</T>
+                </Pressable>
+              ))}
+            </ScrollView>
+
             <Pressable
-              key={it.l}
-              onPress={() => setMenuOpen(false)}
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 10,
-                paddingHorizontal: 16,
-                paddingVertical: 11,
-                backgroundColor: it.active ? '#f0f9ff' : 'transparent',
-                borderLeftWidth: 3,
-                borderLeftColor: it.active ? '#1d4ed8' : 'transparent',
-              }}
+              onPress={() => { setMenuOpen(false); onClose(); }}
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, paddingVertical: 14, borderTopColor: '#eceef1', borderTopWidth: 1 }}
             >
-              <T size={16}>{it.e}</T>
-              <T weight={it.active ? 'b' : 's'} size={14} color={it.active ? '#1d4ed8' : colors.ink}>{it.l}</T>
+              <Ionicons name="log-out-outline" size={20} color="#dc2626" />
+              <T weight="s" size={14} color="#dc2626">লগআউট</T>
             </Pressable>
-          ))}
-          <T size={10} weight="b" color="#94a3b8" style={{ paddingHorizontal: 16, marginTop: 12, marginBottom: 6, letterSpacing: 1.5 }}>প্রতিষ্ঠান</T>
-          {SIDEBAR_SECONDARY.map((it) => (
-            <Pressable
-              key={it.l}
-              onPress={() => setMenuOpen(false)}
-              style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16, paddingVertical: 11 }}
-            >
-              <T size={16}>{it.e}</T>
-              <T weight="s" size={14} color={colors.ink}>{it.l}</T>
-            </Pressable>
-          ))}
-        </View>
+          </View>
+        </>
       )}
 
       <View style={{ flex: 1, flexDirection: isDesktop ? 'row' : 'column' }}>
@@ -331,29 +386,47 @@ export function LenderPortalScreen({ onClose }: { onClose: () => void }) {
 
         {/* Main */}
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16, paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
-          {!isDesktop && (
-            <Card style={{ padding: 12, marginBottom: 14 }}>
-              <Row gap={8}>
-                <Ionicons name="information-circle" size={18} color={colors.tealDark} />
-                <T size={12.5} color={colors.ink2} style={{ flex: 1 }}>
-                  ডেস্কটপ-প্রিভিউ মোড — সম্পূর্ণ ড্যাশবোর্ডে কম্পিউটার থেকে অ্যাকসেস করুন
-                </T>
-              </Row>
-            </Card>
+          {/* Hero stats */}
+          {isDesktop ? (
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginHorizontal: -7, marginBottom: 14 }}>
+              {HERO_STATS.map((s) => (
+                <View key={s.l} style={{ width: '20%', padding: 7 }}>
+                  <Card style={{ padding: 14 }}>
+                    <T size={12} color="#64748b">{s.l}</T>
+                    <T weight="b" size={24} color={s.col} style={{ marginTop: 4 }}>{s.v}</T>
+                    {s.delta && <T size={11.5} weight="s" color={colors.green} style={{ marginTop: 2 }}>▲ {s.delta} এই মাসে</T>}
+                  </Card>
+                </View>
+              ))}
+            </View>
+          ) : (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ gap: 10, paddingRight: 6, paddingBottom: 2 }}
+              style={{ marginBottom: 14 }}
+            >
+              {HERO_STATS.map((s) => (
+                <View
+                  key={s.l}
+                  style={{ width: 142, backgroundColor: '#fff', borderRadius: 14, borderColor: '#eceef1', borderWidth: 1, paddingHorizontal: 14, paddingVertical: 12 }}
+                >
+                  <T size={11.5} color="#64748b" numberOfLines={1}>{s.l}</T>
+                  <T weight="b" size={22} color={s.col} style={{ marginTop: 6 }}>{s.v}</T>
+                  {s.delta ? (
+                    <T size={11} weight="s" color={colors.green} style={{ marginTop: 2 }}>▲ {s.delta} এই মাসে</T>
+                  ) : (
+                    <T size={11} color="transparent" style={{ marginTop: 2 }}>·</T>
+                  )}
+                </View>
+              ))}
+            </ScrollView>
           )}
 
-          {/* Hero stats */}
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginHorizontal: -7, marginBottom: 14 }}>
-            {HERO_STATS.map((s) => (
-              <View key={s.l} style={{ width: isDesktop ? '20%' : '50%', padding: 7 }}>
-                <Card style={{ padding: 14 }}>
-                  <T size={12} color="#64748b">{s.l}</T>
-                  <T weight="b" size={24} color={s.col} style={{ marginTop: 4 }}>{s.v}</T>
-                  {s.delta && <T size={11.5} weight="s" color={colors.green} style={{ marginTop: 2 }}>▲ {s.delta} এই মাসে</T>}
-                </Card>
-              </View>
-            ))}
-          </View>
+          {/* Mobile leads with the weekly brief (it's the headline insight) */}
+          {!isDesktop && (
+            <WeeklyBriefCard onRead={() => toast.show('ব্রিফ ওপেন হচ্ছে…', 'info')} style={{ marginBottom: 14 }} />
+          )}
 
           {/* Filter pills + export */}
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8, marginBottom: 14 }}>
@@ -387,8 +460,9 @@ export function LenderPortalScreen({ onClose }: { onClose: () => void }) {
 
           {/* Two-col body */}
           <View style={{ flexDirection: isDesktop ? 'row' : 'column', gap: 16 }}>
-            {/* Left column: table */}
-            <Card style={{ flex: isDesktop ? 1.7 : undefined, padding: 0, overflow: 'hidden' }}>
+            {/* Left column: beneficiaries — desktop table / mobile list */}
+            {isDesktop ? (
+            <Card style={{ flex: 1.7, padding: 0, overflow: 'hidden' }}>
               <View style={{ paddingHorizontal: 12, paddingVertical: 10, backgroundColor: '#f8fafc', flexDirection: 'row', alignItems: 'center' }}>
                 <T weight="b" size={12} color="#475569" style={{ flex: 2 }}>নাম · জেলা</T>
                 <T weight="b" size={12} color="#475569" style={{ width: 80, textAlign: 'right' }}>আয়</T>
@@ -473,65 +547,62 @@ export function LenderPortalScreen({ onClose }: { onClose: () => void }) {
                 </Pressable>
               ))}
             </Card>
-
-            {/* Right column: charts */}
-            <View style={{ flex: 1, gap: 16 }}>
-              <Card style={{ padding: 16 }}>
-                <T weight="b" size={14} style={{ marginBottom: 12 }}>স্কোর বণ্টন</T>
-                {SCORE_DIST.map((d, i) => {
-                  const p = (d.n / 1240) * 100;
+            ) : (
+              <View>
+                <T weight="b" size={15} style={{ marginBottom: 8 }}>বেনিফিশিয়ারি · {formatBnIndian(filtered.length)}</T>
+                <Card style={{ padding: 0, overflow: 'hidden' }}>
+                {filtered.map((r, i) => {
+                  const scoreBg = r.s >= 700 ? '#dcfce7' : r.s >= 500 ? '#fef3c7' : '#fee2e2';
+                  const scoreFg = r.s >= 700 ? '#15803d' : r.s >= 500 ? '#a16207' : '#b91c1c';
+                  const kindBg = r.kind === 'g' ? '#dcfce7' : r.kind === 'a' ? '#fef3c7' : '#fee2e2';
+                  const kindFg = r.kind === 'g' ? '#15803d' : r.kind === 'a' ? '#a16207' : '#b91c1c';
                   return (
-                    <View key={i} style={{ marginBottom: 9 }}>
-                      <Row style={{ justifyContent: 'space-between', marginBottom: 3 }}>
-                        <T size={12}>{d.l}</T>
-                        <T weight="b" size={12}>{d.n}</T>
-                      </Row>
-                      <View style={{ height: 6, backgroundColor: '#f1f5f9', borderRadius: 3 }}>
-                        <View style={{ width: (`${p}%`) as `${number}%`, height: '100%', backgroundColor: d.col, borderRadius: 3 }} />
+                    <Pressable
+                      key={i}
+                      onPress={() => setOpenId(openId === i ? null : i)}
+                      style={{
+                        paddingHorizontal: 14,
+                        paddingVertical: 12,
+                        borderTopColor: '#eceef1',
+                        borderTopWidth: i === 0 ? 0 : 1,
+                        backgroundColor: openId === i ? '#f8fafc' : '#fff',
+                      }}
+                    >
+                      <View style={{ flexDirection: 'row', gap: 10 }}>
+                        <View style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: AVATAR_COLORS[i % AVATAR_COLORS.length], alignItems: 'center', justifyContent: 'center' }}>
+                          <T weight="b" size={16} color="#fff">{r.n.slice(0, 1)}</T>
+                        </View>
+                        <View style={{ flex: 1 }}>
+                          <Row style={{ justifyContent: 'space-between', alignItems: 'center' }}>
+                            <T weight="b" size={14} style={{ flex: 1, marginRight: 8 }} numberOfLines={1}>{r.n}</T>
+                            <View style={{ paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, backgroundColor: kindBg }}>
+                              <T weight="s" size={11} color={kindFg}>{r.loan}</T>
+                            </View>
+                          </Row>
+                          <T size={12} color="#64748b" style={{ marginTop: 2 }}>{r.d} · {r.b}</T>
+                          <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 10, marginTop: 8 }}>
+                            <T weight="b" size={13}>৳{r.rev}</T>
+                            <View style={{ paddingHorizontal: 7, paddingVertical: 2, borderRadius: 6, backgroundColor: scoreBg }}>
+                              <T weight="b" size={12} color={scoreFg}>স্কোর {r.s}</T>
+                            </View>
+                            <T size={12} weight="s" color={r.g.startsWith('−') ? '#b91c1c' : '#15803d'}>প্রবৃদ্ধি {r.g}</T>
+                            <T size={12} weight="s" color={r.repay === '১০০%' ? '#15803d' : '#a16207'}>পরিশোধ {r.repay}</T>
+                            <T size={12} color="#64748b">{r.cycle}য় চক্র</T>
+                          </View>
+                        </View>
                       </View>
-                    </View>
+                    </Pressable>
                   );
                 })}
-              </Card>
+                </Card>
+              </View>
+            )}
 
-              <Card tinted={colors.tealSoft} style={{ padding: 16 }}>
-                <Row gap={8}>
-                  <SathiBadge />
-                  <T weight="b" size={13} color={colors.tealDark}>সাথীর সাপ্তাহিক ব্রিফ</T>
-                </Row>
-                <T size={13} color={colors.ink} style={{ marginTop: 8, lineHeight: 20 }}>
-                  এই সপ্তাহে <T weight="b" size={13}>৩১২ জন</T> ঋণ-যোগ্য — গড়ে <T weight="b" size={13}>৳৪৫,০০০</T> পর্যন্ত। মুনির খান (স্কোর ৮১০) তৃতীয় চক্রে — <T weight="b" size={13}>প্রিমিয়াম ঋণ পণ্য</T> অফার করতে পারেন। রফিকুল ইসলামের রাজস্ব ৪% কমেছে · ফলো-আপ দরকার।
-                </T>
-                <Btn
-                  kind="primary"
-                  size="sm"
-                  label="সম্পূর্ণ ব্রিফ পড়ুন →"
-                  style={{ marginTop: 12, backgroundColor: '#1d4ed8' }}
-                  onPress={() => toast.show('ব্রিফ ওপেন হচ্ছে…', 'info')}
-                />
-              </Card>
-
-              <Card style={{ padding: 16 }}>
-                <T weight="b" size={14} style={{ marginBottom: 12 }}>শাখা পারফরম্যান্স</T>
-                {BRANCH_PERF.map((d, i) => (
-                  <View key={i} style={{ marginBottom: 10 }}>
-                    <Row style={{ justifyContent: 'space-between', marginBottom: 3 }}>
-                      <T size={12.5}>{d.d}</T>
-                      <T weight="b" size={12.5}>{d.v}</T>
-                    </Row>
-                    <View style={{ height: 6, backgroundColor: '#f1f5f9', borderRadius: 3 }}>
-                      <View
-                        style={{
-                          width: (`${d.pct}%`) as `${number}%`,
-                          height: '100%',
-                          backgroundColor: d.pct >= 70 ? '#15803d' : d.pct >= 60 ? '#a16207' : '#b91c1c',
-                          borderRadius: 3,
-                        }}
-                      />
-                    </View>
-                  </View>
-                ))}
-              </Card>
+            {/* Right column (desktop) / stacked insight sections (mobile) */}
+            <View style={{ flex: 1, gap: 16 }}>
+              <ScoreDistCard />
+              {isDesktop && <WeeklyBriefCard onRead={() => toast.show('ব্রিফ ওপেন হচ্ছে…', 'info')} />}
+              <BranchPerfCard />
             </View>
           </View>
 
@@ -542,6 +613,77 @@ export function LenderPortalScreen({ onClose }: { onClose: () => void }) {
         </ScrollView>
       </View>
     </SafeAreaView>
+  );
+}
+
+const AVATAR_COLORS = ['#1d4ed8', '#0d9488', '#7c3aed', '#db2777', '#ea580c', '#0891b2', '#65a30d', '#b91c1c'];
+
+function ScoreDistCard({ style }: { style?: object }) {
+  return (
+    <Card style={[{ padding: 16 }, style]}>
+      <T weight="b" size={14} style={{ marginBottom: 12 }}>স্কোর বণ্টন</T>
+      {SCORE_DIST.map((d, i) => {
+        const p = (d.n / 1240) * 100;
+        return (
+          <View key={i} style={{ marginBottom: 9 }}>
+            <Row style={{ justifyContent: 'space-between', marginBottom: 3 }}>
+              <T size={12}>{d.l}</T>
+              <T weight="b" size={12}>{d.n}</T>
+            </Row>
+            <View style={{ height: 6, backgroundColor: '#f1f5f9', borderRadius: 3 }}>
+              <View style={{ width: (`${p}%`) as `${number}%`, height: '100%', backgroundColor: d.col, borderRadius: 3 }} />
+            </View>
+          </View>
+        );
+      })}
+    </Card>
+  );
+}
+
+function BranchPerfCard({ style }: { style?: object }) {
+  return (
+    <Card style={[{ padding: 16 }, style]}>
+      <T weight="b" size={14} style={{ marginBottom: 12 }}>শাখা পারফরম্যান্স</T>
+      {BRANCH_PERF.map((d, i) => (
+        <View key={i} style={{ marginBottom: 10 }}>
+          <Row style={{ justifyContent: 'space-between', marginBottom: 3 }}>
+            <T size={12.5}>{d.d}</T>
+            <T weight="b" size={12.5}>{d.v}</T>
+          </Row>
+          <View style={{ height: 6, backgroundColor: '#f1f5f9', borderRadius: 3 }}>
+            <View
+              style={{
+                width: (`${d.pct}%`) as `${number}%`,
+                height: '100%',
+                backgroundColor: d.pct >= 70 ? '#15803d' : d.pct >= 60 ? '#a16207' : '#b91c1c',
+                borderRadius: 3,
+              }}
+            />
+          </View>
+        </View>
+      ))}
+    </Card>
+  );
+}
+
+function WeeklyBriefCard({ onRead, style }: { onRead: () => void; style?: object }) {
+  return (
+    <Card tinted={colors.tealSoft} style={[{ padding: 16 }, style]}>
+      <Row gap={8}>
+        <SathiBadge />
+        <T weight="b" size={13} color={colors.tealDark}>সাথীর সাপ্তাহিক ব্রিফ</T>
+      </Row>
+      <T size={13} color={colors.ink} style={{ marginTop: 8, lineHeight: 20 }}>
+        এই সপ্তাহে <T weight="b" size={13}>৩১২ জন</T> ঋণ-যোগ্য — গড়ে <T weight="b" size={13}>৳৪৫,০০০</T> পর্যন্ত। মুনির খান (স্কোর ৮১০) তৃতীয় চক্রে — <T weight="b" size={13}>প্রিমিয়াম ঋণ পণ্য</T> অফার করতে পারেন। রফিকুল ইসলামের রাজস্ব ৪% কমেছে · ফলো-আপ দরকার।
+      </T>
+      <Btn
+        kind="primary"
+        size="sm"
+        label="সম্পূর্ণ ব্রিফ পড়ুন →"
+        style={{ marginTop: 12, backgroundColor: '#1d4ed8' }}
+        onPress={onRead}
+      />
+    </Card>
   );
 }
 
@@ -669,4 +811,13 @@ const iconBtn = {
   backgroundColor: '#f1f5f9',
   alignItems: 'center' as const,
   justifyContent: 'center' as const,
+};
+
+const iconBtnGhost = {
+  width: 40,
+  height: 40,
+  borderRadius: 20,
+  alignItems: 'center' as const,
+  justifyContent: 'center' as const,
+  position: 'relative' as const,
 };
