@@ -79,12 +79,38 @@ const SIDEBAR_SECONDARY = [
   { e: '⚙️', l: 'সেটিংস' },
 ];
 
+const ALL_DISTRICTS = 'সব জেলা';
+const DISTRICTS = [ALL_DISTRICTS, ...Array.from(new Set(BENEFICIARIES.map((b) => b.d)))];
+
+const BN_DIGITS = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+
+function parseBnNumber(s: string): number {
+  let out = '';
+  for (const ch of s) {
+    const idx = BN_DIGITS.indexOf(ch);
+    if (idx >= 0) out += idx;
+    else if (ch >= '0' && ch <= '9') out += ch;
+  }
+  return out ? parseInt(out, 10) : 0;
+}
+
+function formatBnIndian(n: number): string {
+  const str = Math.round(n).toString();
+  const last3 = str.slice(-3);
+  const rest = str.slice(0, -3);
+  const grouped = rest ? `${rest.replace(/\B(?=(\d{2})+(?!\d))/g, ',')},${last3}` : last3;
+  return grouped.replace(/\d/g, (d) => BN_DIGITS[+d]);
+}
+
 export function LenderPortalScreen({ onClose }: { onClose: () => void }) {
   const { isDesktop } = useResponsive();
   const toast = useToast();
   const [filter, setFilter] = useState<'all' | 'eligible' | 'watch' | 'risk'>('all');
   const [openId, setOpenId] = useState<number | null>(null);
   const [query, setQuery] = useState('');
+  const [district, setDistrict] = useState(ALL_DISTRICTS);
+  const [districtOpen, setDistrictOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const filtered = useMemo(() => {
     const byFilter = BENEFICIARIES.filter((r) => {
@@ -93,10 +119,11 @@ export function LenderPortalScreen({ onClose }: { onClose: () => void }) {
       if (filter === 'risk') return r.kind === 'r';
       return true;
     });
-    if (!query.trim()) return byFilter;
+    const byDistrict = district === ALL_DISTRICTS ? byFilter : byFilter.filter((r) => r.d === district);
+    if (!query.trim()) return byDistrict;
     const q = query.trim().toLowerCase();
-    return byFilter.filter((r) => `${r.n} ${r.d} ${r.b}`.toLowerCase().includes(q));
-  }, [filter, query]);
+    return byDistrict.filter((r) => `${r.n} ${r.d} ${r.b}`.toLowerCase().includes(q));
+  }, [filter, query, district]);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#f5f6f8' }}>
@@ -118,6 +145,11 @@ export function LenderPortalScreen({ onClose }: { onClose: () => void }) {
         <Pressable onPress={onClose} hitSlop={8} style={iconBtn}>
           <Ionicons name="arrow-back" size={20} color={colors.ink} />
         </Pressable>
+        {!isDesktop && (
+          <Pressable onPress={() => setMenuOpen((o) => !o)} hitSlop={8} style={iconBtn}>
+            <Ionicons name={menuOpen ? 'close' : 'menu'} size={22} color={colors.ink} />
+          </Pressable>
+        )}
         <Row gap={10}>
           <View style={{ width: 36, height: 36, borderRadius: 8, backgroundColor: colors.saffron, alignItems: 'center', justifyContent: 'center' }}>
             <T weight="b" size={18} color="#fff">আ</T>
@@ -147,6 +179,64 @@ export function LenderPortalScreen({ onClose }: { onClose: () => void }) {
                 color: colors.ink,
               }}
             />
+            <View style={{ position: 'relative' }}>
+              <Pressable
+                onPress={() => setDistrictOpen((o) => !o)}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 6,
+                  paddingHorizontal: 12,
+                  paddingVertical: 8,
+                  borderRadius: 8,
+                  borderColor: '#e6e8ec',
+                  borderWidth: 1,
+                  backgroundColor: '#fff',
+                }}
+              >
+                <T size={13} color={colors.ink}>{district}</T>
+                <Ionicons name={districtOpen ? 'chevron-up' : 'chevron-down'} size={14} color="#64748b" />
+              </Pressable>
+              {districtOpen && (
+                <View
+                  style={{
+                    position: 'absolute',
+                    top: 42,
+                    left: 0,
+                    minWidth: 150,
+                    backgroundColor: '#fff',
+                    borderColor: '#e6e8ec',
+                    borderWidth: 1,
+                    borderRadius: 8,
+                    paddingVertical: 4,
+                    zIndex: 20,
+                    shadowColor: '#000',
+                    shadowOpacity: 0.12,
+                    shadowRadius: 12,
+                    shadowOffset: { width: 0, height: 4 },
+                    elevation: 8,
+                  }}
+                >
+                  {DISTRICTS.map((d) => (
+                    <Pressable
+                      key={d}
+                      onPress={() => {
+                        setDistrict(d);
+                        setDistrictOpen(false);
+                        setOpenId(null);
+                      }}
+                      style={{
+                        paddingHorizontal: 12,
+                        paddingVertical: 8,
+                        backgroundColor: d === district ? '#f0f9ff' : 'transparent',
+                      }}
+                    >
+                      <T size={13} weight={d === district ? 'b' : 'r'} color={d === district ? '#1d4ed8' : colors.ink}>{d}</T>
+                    </Pressable>
+                  ))}
+                </View>
+              )}
+            </View>
             <Row gap={10}>
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#dc2626', alignItems: 'center', justifyContent: 'center' }}>
                 <T weight="b" size={13} color="#fff">BR</T>
@@ -159,6 +249,43 @@ export function LenderPortalScreen({ onClose }: { onClose: () => void }) {
           </>
         )}
       </View>
+
+      {/* Mobile nav menu (Law 4: sidebar items must stay accessible on mobile) */}
+      {!isDesktop && menuOpen && (
+        <View style={{ backgroundColor: '#fff', borderBottomColor: '#e6e8ec', borderBottomWidth: 1, paddingVertical: 10 }}>
+          <T size={10} weight="b" color="#94a3b8" style={{ paddingHorizontal: 16, marginBottom: 6, letterSpacing: 1.5 }}>ওভারভিউ</T>
+          {SIDEBAR_PRIMARY.map((it) => (
+            <Pressable
+              key={it.l}
+              onPress={() => setMenuOpen(false)}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 10,
+                paddingHorizontal: 16,
+                paddingVertical: 11,
+                backgroundColor: it.active ? '#f0f9ff' : 'transparent',
+                borderLeftWidth: 3,
+                borderLeftColor: it.active ? '#1d4ed8' : 'transparent',
+              }}
+            >
+              <T size={16}>{it.e}</T>
+              <T weight={it.active ? 'b' : 's'} size={14} color={it.active ? '#1d4ed8' : colors.ink}>{it.l}</T>
+            </Pressable>
+          ))}
+          <T size={10} weight="b" color="#94a3b8" style={{ paddingHorizontal: 16, marginTop: 12, marginBottom: 6, letterSpacing: 1.5 }}>প্রতিষ্ঠান</T>
+          {SIDEBAR_SECONDARY.map((it) => (
+            <Pressable
+              key={it.l}
+              onPress={() => setMenuOpen(false)}
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16, paddingVertical: 11 }}
+            >
+              <T size={16}>{it.e}</T>
+              <T weight="s" size={14} color={colors.ink}>{it.l}</T>
+            </Pressable>
+          ))}
+        </View>
+      )}
 
       <View style={{ flex: 1, flexDirection: isDesktop ? 'row' : 'column' }}>
         {/* Sidebar */}
@@ -262,10 +389,13 @@ export function LenderPortalScreen({ onClose }: { onClose: () => void }) {
           <View style={{ flexDirection: isDesktop ? 'row' : 'column', gap: 16 }}>
             {/* Left column: table */}
             <Card style={{ flex: isDesktop ? 1.7 : undefined, padding: 0, overflow: 'hidden' }}>
-              <View style={{ paddingHorizontal: 12, paddingVertical: 10, backgroundColor: '#f8fafc', flexDirection: 'row' }}>
+              <View style={{ paddingHorizontal: 12, paddingVertical: 10, backgroundColor: '#f8fafc', flexDirection: 'row', alignItems: 'center' }}>
                 <T weight="b" size={12} color="#475569" style={{ flex: 2 }}>নাম · জেলা</T>
                 <T weight="b" size={12} color="#475569" style={{ width: 80, textAlign: 'right' }}>আয়</T>
+                {isDesktop && <T weight="b" size={12} color="#475569" style={{ width: 64, textAlign: 'right' }}>প্রবৃদ্ধি</T>}
                 <T weight="b" size={12} color="#475569" style={{ width: 60, textAlign: 'right' }}>স্কোর</T>
+                {isDesktop && <T weight="b" size={12} color="#475569" style={{ width: 64, textAlign: 'right' }}>পরিশোধ</T>}
+                {isDesktop && <T weight="b" size={12} color="#475569" style={{ width: 48, textAlign: 'right' }}>চক্র</T>}
                 <T weight="b" size={12} color="#475569" style={{ width: 90, textAlign: 'right' }}>ঋণ-যোগ্যতা</T>
               </View>
               {filtered.map((r, i) => (
@@ -287,6 +417,11 @@ export function LenderPortalScreen({ onClose }: { onClose: () => void }) {
                     <T size={11.5} color="#475569">{r.d} · {r.b}</T>
                   </View>
                   <T weight="b" size={13} style={{ width: 80, textAlign: 'right' }}>৳{r.rev}</T>
+                  {isDesktop && (
+                    <T weight="s" size={12.5} style={{ width: 64, textAlign: 'right' }} color={r.g.startsWith('−') ? '#b91c1c' : '#15803d'}>
+                      {r.g}
+                    </T>
+                  )}
                   <View style={{ width: 60, alignItems: 'flex-end' }}>
                     <View
                       style={{
@@ -306,6 +441,16 @@ export function LenderPortalScreen({ onClose }: { onClose: () => void }) {
                       </T>
                     </View>
                   </View>
+                  {isDesktop && (
+                    <T weight="s" size={12.5} style={{ width: 64, textAlign: 'right' }} color={r.repay === '১০০%' ? '#15803d' : '#a16207'}>
+                      {r.repay}
+                    </T>
+                  )}
+                  {isDesktop && (
+                    <T size={12.5} color="#475569" style={{ width: 48, textAlign: 'right' }}>
+                      {r.cycle}য়
+                    </T>
+                  )}
                   <View style={{ width: 90, alignItems: 'flex-end' }}>
                     <View
                       style={{
@@ -475,7 +620,7 @@ function ExpandedProfile({
         <T size={14} style={{ marginTop: 8, lineHeight: 22 }}>
           {beneficiary.n} গত {beneficiary.cycle * 6} মাস আরোপণে। গত ৩ মাসে আয় বৃদ্ধি <T weight="b" size={14}>{beneficiary.g}</T>। ৩২টি লেনদেন/মাস, ৪৭ জন সক্রিয় কাস্টমার, ডিজিটাল কার্যকলাপ উচ্চ।{' '}
           {beneficiary.kind === 'g'
-            ? `কোনো ডিফল্ট ঝুঁকি নেই — পরবর্তী চক্রে বড় বরাদ্দ সুপারিশ।`
+            ? `কোনো ডিফল্ট ঝুঁকি নেই — পরবর্তী চক্রে ৳${formatBnIndian(parseBnNumber(beneficiary.active) * 1.5)} পর্যন্ত বরাদ্দ সুপারিশ।`
             : beneficiary.kind === 'a'
             ? 'পরিশোধে কিছু দেরি — সরাসরি ফলো-আপ সুপারিশ।'
             : 'রাজস্ব কমছে — অবিলম্বে যোগাযোগ ও সাপোর্ট দরকার।'}
