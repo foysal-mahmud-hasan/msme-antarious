@@ -19,6 +19,7 @@ import {
   SathiOnboardingScreen,
   isOnboarded,
   markOnboarded,
+  markOnboardedSkipped,
 } from './src/screens/SathiOnboardingScreen';
 import { DebtsProvider } from './src/state/DebtsStore';
 import { ProductsProvider } from './src/state/ProductsStore';
@@ -33,7 +34,7 @@ function Gate() {
   React.useEffect(() => {
     let alive = true;
     (async () => {
-      if (!user) {
+      if (!user || user.hasPOPortal) {
         if (alive) {
           setNeedsOnboarding(false);
           setCheckingOnboard(false);
@@ -79,6 +80,10 @@ function Gate() {
         defaultName={user.bengaliName}
         onFinish={async (payload) => {
           await markOnboarded(user.id, payload);
+          setNeedsOnboarding(false);
+        }}
+        onSkip={async () => {
+          await markOnboardedSkipped(user.id);
           setNeedsOnboarding(false);
         }}
       />

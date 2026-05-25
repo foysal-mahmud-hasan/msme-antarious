@@ -57,9 +57,11 @@ type ChatMessage = { from: 'sathi' | 'user'; text: string };
 export function SathiOnboardingScreen({
   defaultName,
   onFinish,
+  onSkip,
 }: {
   defaultName?: string;
   onFinish: (payload: { brandName: string; logoIdx: number; channels: Record<string, boolean> }) => void;
+  onSkip?: () => void;
 }) {
   const { isDesktop } = useResponsive();
   const [step, setStep] = useState(1);
@@ -156,16 +158,24 @@ export function SathiOnboardingScreen({
       <Row
         style={{
           justifyContent: 'space-between',
+          alignItems: 'center',
           paddingHorizontal: 16,
           paddingTop: 6,
           paddingBottom: 12,
           backgroundColor: '#fff',
         }}
       >
-        <T weight="b" size={13}>{STEP_LABELS[step - 1].t}</T>
-        <T size={11} color={colors.ink2}>
-          {step}/{STEP_LABELS.length} · {STEP_LABELS[step - 1].s}
-        </T>
+        <View>
+          <T weight="b" size={13}>{STEP_LABELS[step - 1].t}</T>
+          <T size={11} color={colors.ink2}>
+            {step}/{STEP_LABELS.length} · {STEP_LABELS[step - 1].s}
+          </T>
+        </View>
+        {onSkip && (
+          <Pressable onPress={onSkip} hitSlop={8} style={{ paddingHorizontal: 8, paddingVertical: 4 }}>
+            <T weight="b" size={12} color={colors.ink2}>এড়িয়ে যান →</T>
+          </Pressable>
+        )}
       </Row>
 
       {/* Chat log */}
@@ -468,6 +478,10 @@ export async function markOnboarded(userId: string, payload: { brandName: string
   await AsyncStorage.setItem(ONBOARDED_KEY(userId), '1');
   await AsyncStorage.setItem(BRAND_KEY, JSON.stringify({ brandName: payload.brandName, logoIdx: payload.logoIdx }));
   await AsyncStorage.setItem(CHANNELS_KEY, JSON.stringify(payload.channels));
+}
+
+export async function markOnboardedSkipped(userId: string) {
+  await AsyncStorage.setItem(ONBOARDED_KEY(userId), '1');
 }
 
 export async function readBrand(): Promise<{ brandName: string; logoIdx: number } | null> {
