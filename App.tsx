@@ -21,6 +21,7 @@ import {
   markOnboarded,
   markOnboardedSkipped,
 } from './src/screens/SathiOnboardingScreen';
+import { ComplaintsProvider } from './src/state/ComplaintsStore';
 import { DebtsProvider } from './src/state/DebtsStore';
 import { EntitlementsProvider } from './src/state/EntitlementsStore';
 import { LeadsProvider } from './src/state/LeadsStore';
@@ -121,7 +122,9 @@ export default function App() {
                 <ProductsProvider>
                   <DebtsProvider>
                     <LeadsProvider>
-                      <Gate />
+                      <ComplaintsProvider>
+                        <Gate />
+                      </ComplaintsProvider>
                     </LeadsProvider>
                   </DebtsProvider>
                 </ProductsProvider>

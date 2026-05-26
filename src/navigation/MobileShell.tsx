@@ -6,8 +6,10 @@ import { Row, T } from '../components/atoms';
 import { SathiFAB } from '../components/SathiFAB';
 import { AgentLiveScreen, ApprovalsScreen, AutopilotScreen } from '../screens/AgentScreens';
 import { BrandScreen } from '../screens/BrandScreen';
+import { ComplaintsScreen } from '../screens/ComplaintsScreen';
 import { CreditScreen } from '../screens/CreditScreen';
 import { FinanceScreen } from '../screens/FinanceScreen';
+import { InsightsScreen } from '../screens/InsightsScreen';
 import { HaatPrepScreen } from '../screens/HaatPrepScreen';
 import { HomeScreen } from '../screens/HomeScreen';
 import { JourneyScreen } from '../screens/JourneyScreen';
@@ -122,6 +124,12 @@ export function MobileShell({ route, setRoute, overlay }: Props) {
       </Overlay>
       <Overlay open={overlay === 'leads'}>
         <LeadsScreen onClose={actions.closeOverlay} />
+      </Overlay>
+      <Overlay open={overlay === 'insights'}>
+        <InsightsScreen onClose={actions.closeOverlay} />
+      </Overlay>
+      <Overlay open={overlay === 'complaints'}>
+        <ComplaintsScreen onClose={actions.closeOverlay} />
       </Overlay>
       <Overlay open={overlay === 'trust'}>
         <TrustJourneyScreen onClose={actions.closeOverlay} />

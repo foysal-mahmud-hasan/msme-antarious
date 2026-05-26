@@ -6,8 +6,10 @@ import { useResponsive } from '../components/AppFrame';
 import { Avatar, PulseDot, Row, T } from '../components/atoms';
 import { AgentLiveScreen, ApprovalsScreen, AutopilotScreen } from '../screens/AgentScreens';
 import { BrandScreen } from '../screens/BrandScreen';
+import { ComplaintsScreen } from '../screens/ComplaintsScreen';
 import { CreditScreen } from '../screens/CreditScreen';
 import { FinanceScreen } from '../screens/FinanceScreen';
+import { InsightsScreen } from '../screens/InsightsScreen';
 import { HaatPrepScreen } from '../screens/HaatPrepScreen';
 import { HomeScreen } from '../screens/HomeScreen';
 import { JourneyScreen } from '../screens/JourneyScreen';
@@ -190,6 +192,12 @@ export function DesktopShell({ route, setRoute, overlay }: Props) {
       </DrawerOverlay>
       <DrawerOverlay open={overlay === 'leads'} onClose={actions.closeOverlay} width={640}>
         <LeadsScreen onClose={actions.closeOverlay} />
+      </DrawerOverlay>
+      <DrawerOverlay open={overlay === 'insights'} onClose={actions.closeOverlay} width={720}>
+        <InsightsScreen onClose={actions.closeOverlay} />
+      </DrawerOverlay>
+      <DrawerOverlay open={overlay === 'complaints'} onClose={actions.closeOverlay} width={640}>
+        <ComplaintsScreen onClose={actions.closeOverlay} />
       </DrawerOverlay>
       <DrawerOverlay open={overlay === 'trust'} onClose={actions.closeOverlay} width={560}>
         <TrustJourneyScreen onClose={actions.closeOverlay} />
