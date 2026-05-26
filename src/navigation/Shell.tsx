@@ -4,7 +4,8 @@ import { useAuth } from '../auth/AuthContext';
 import { useResponsive } from '../components/AppFrame';
 import { LenderPortalScreen } from '../screens/LenderPortalScreen';
 import { SathiChatScreen } from '../screens/SathiChatScreen';
-import { AppActions, AppActionsProvider, OverlayName, Route } from '../state/AppActions';
+import { AppActions, AppActionsProvider, OVERLAY_FEATURE, OverlayName, Route } from '../state/AppActions';
+import { useEntitlements } from '../state/EntitlementsStore';
 import { colors } from '../theme';
 import { DesktopShell } from './DesktopShell';
 import { MobileShell } from './MobileShell';
@@ -20,6 +21,7 @@ const DEFAULT_SUB_TABS: Record<Route, string> = {
 export function Shell() {
   const { isDesktop } = useResponsive();
   const { user, signOut } = useAuth();
+  const { has } = useEntitlements();
 
   const [route, setRoute] = useState<Route>('home');
   const [overlay, setOverlay] = useState<OverlayName | null>(null);
@@ -47,6 +49,15 @@ export function Shell() {
       },
       openOverlay: (name, prefill) => {
         if (name === 'po' && !user?.hasPOPortal) return;
+        // Entitlement chokepoint: a locked paid overlay redirects to upsell,
+        // pre-targeted to the feature it gates. Defense-in-depth — even an
+        // entry point that forgets to gate can't reach a paid surface.
+        const required = OVERLAY_FEATURE[name];
+        if (required && !has(required)) {
+          setOverlay('upgrade');
+          setOverlayPrefill(required);
+          return;
+        }
         setOverlay(name);
         setOverlayPrefill(prefill);
       },
@@ -60,7 +71,7 @@ export function Shell() {
       currentOverlay: overlay,
       overlayPrefill,
     }),
-    [route, overlay, overlayPrefill, subTabs, user?.hasPOPortal]
+    [route, overlay, overlayPrefill, subTabs, user?.hasPOPortal, has]
   );
 
   if (user?.hasPOPortal) {

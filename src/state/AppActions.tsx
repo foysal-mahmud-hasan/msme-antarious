@@ -1,4 +1,5 @@
 import React, { createContext, useContext } from 'react';
+import type { Feature } from './entitlements';
 
 export type Route = 'home' | 'messages' | 'market' | 'finance' | 'more';
 
@@ -24,7 +25,32 @@ export type OverlayName =
   | 'trust'
   | 'day'
   | 'memory'
-  | 'lender';
+  | 'lender'
+  | 'upgrade'
+  | 'leads'
+  | 'insights'
+  | 'complaints'
+  | 'calendar'
+  | 'courier'
+  | 'inventory';
+
+/**
+ * Maps a paid-feature overlay to the capability it requires. The Shell's
+ * openOverlay chokepoint uses this to redirect locked overlays to 'upgrade',
+ * so a paid surface can never be reached even if an entry point forgets to gate.
+ * 'upgrade' and 'pricing' are intentionally NOT listed (always reachable).
+ */
+export const OVERLAY_FEATURE: Partial<Record<OverlayName, Feature>> = {
+  credit: 'creditScore',
+  brand: 'brandStudio',
+  website: 'website',
+  leads: 'leads',
+  insights: 'insights',
+  complaints: 'complaints',
+  calendar: 'calendar',
+  courier: 'courier',
+  inventory: 'inventory',
+};
 
 export type AppActions = {
   /** Switch to a top-level tab, optionally setting its sub-tab. Closes any open overlay. */
