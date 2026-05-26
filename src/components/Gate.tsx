@@ -28,7 +28,7 @@ export function LockBadge({
   label?: string;
   size?: 'sm' | 'md';
 }) {
-  const text = label ?? (tier ? TIERS[tier].nameBn : 'প্রিমিয়াম');
+  const text = label ?? (tier ? TIERS[tier].nameBn : 'অ্যাড-অন');
   const fs = size === 'sm' ? 10 : 11.5;
   return (
     <Row

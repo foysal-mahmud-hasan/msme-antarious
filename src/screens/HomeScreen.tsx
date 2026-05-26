@@ -5,11 +5,13 @@ import Svg, { Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { useAuth } from '../auth/AuthContext';
 import { AppHeader } from '../components/AppHeader';
 import { Btn, Card, Chip, Row, SathiBadge, SectionHeader, T } from '../components/atoms';
+import { FeatureGate, LockBadge, useFeature } from '../components/Gate';
 import { PillTabs } from '../components/PillTabs';
 import { ResponsiveGrid, ScreenScroll } from '../components/ScreenContainer';
 import { StatPill } from '../components/StatPill';
 import { useToast } from '../components/Toast';
 import { useActions } from '../state/AppActions';
+import { Feature } from '../state/entitlements';
 import { colors } from '../theme';
 
 type TodayTab = 'today' | 'weekly';
@@ -54,7 +56,9 @@ function HomeToday() {
   const actions = useActions();
   return (
     <ScreenScroll>
-      <CreditHero onPress={() => actions.openOverlay('credit')} />
+      <FeatureGate feature="creditScore">
+        <CreditHero onPress={() => actions.openOverlay('credit')} />
+      </FeatureGate>
       <View style={{ height: 14 }} />
       <SathiMorningBrief
         onOpenAcc={() => actions.goto('finance')}
@@ -105,32 +109,42 @@ function HomeToday() {
       </Pressable>
 
       <SectionHeader title="সাথীর সাথে আরও করুন" />
-      <ResponsiveGrid columns={{ mobile: 2, tablet: 2, desktop: 4 }} gap={10}>
-        <ExploreTile
-          emoji="📊"
-          label="অটো হিসাব"
-          sub="সব লেনদেন স্বয়ংক্রিয়"
-          bg={colors.greenSoft}
-          fg={colors.green}
-          onPress={() => actions.goto('finance')}
-        />
-        <ExploreTile
+      <ResponsiveGrid columns={{ mobile: 2, tablet: 3, desktop: 4 }} gap={10}>
+        <FeatureTile
+          feature="brandStudio"
           emoji="🎨"
           label="ব্র্যান্ড স্টুডিও"
-          sub="লোগো · রঙ · কণ্ঠ"
+          sub="লোগো · ক্যাপশন · কপি"
           bg={colors.saffronSoft}
           fg={colors.saffronDark}
-          badge="Pro"
           onPress={() => actions.openOverlay('brand')}
         />
-        <ExploreTile
+        <FeatureTile
+          feature="website"
           emoji="🌐"
           label="ওয়েবসাইট"
-          sub="৬টি টেমপ্লেট থেকে বেছে নিন"
+          sub="৬টি টেমপ্লেট"
           bg="rgba(139,92,246,0.1)"
           fg="#7c3aed"
-          badge="Premium"
           onPress={() => actions.openOverlay('website')}
+        />
+        <FeatureTile
+          feature="leads"
+          emoji="🧲"
+          label="লিড ক্যাপচার"
+          sub="কাস্টমার ডেটা + স্কোরিং"
+          bg="rgba(219,39,119,0.08)"
+          fg="#db2777"
+          onPress={() => actions.openOverlay('leads')}
+        />
+        <FeatureTile
+          feature="insights"
+          emoji="📈"
+          label="ইনসাইট ও রিপোর্ট"
+          sub="দৈনিক · সাপ্তাহিক · মাসিক"
+          bg="rgba(29,78,216,0.08)"
+          fg="#1d4ed8"
+          onPress={() => actions.openOverlay('insights')}
         />
         <ExploreTile
           emoji="💎"
@@ -142,6 +156,40 @@ function HomeToday() {
         />
       </ResponsiveGrid>
     </ScreenScroll>
+  );
+}
+
+function FeatureTile({
+  feature,
+  emoji,
+  label,
+  sub,
+  bg,
+  fg,
+  onPress,
+}: {
+  feature: Feature;
+  emoji: string;
+  label: string;
+  sub: string;
+  bg: string;
+  fg: string;
+  onPress: () => void;
+}) {
+  const { enabled, requiredTier, openUpsell } = useFeature(feature);
+  return (
+    <Pressable onPress={enabled ? onPress : openUpsell} style={{ flex: 1 }}>
+      <Card tinted={enabled ? bg : '#f4f4f5'} style={{ padding: 14, minHeight: 96 }}>
+        <T size={26} style={{ opacity: enabled ? 1 : 0.5 }}>{emoji}</T>
+        <T weight="b" size={14} color={enabled ? fg : colors.ink2} style={{ marginTop: 6 }}>{label}</T>
+        <T size={11.5} color={colors.ink2} style={{ marginTop: 2 }}>{sub}</T>
+        {!enabled ? (
+          <View style={{ position: 'absolute', top: 8, right: 8 }}>
+            <LockBadge tier={requiredTier} size="sm" />
+          </View>
+        ) : null}
+      </Card>
+    </Pressable>
   );
 }
 
