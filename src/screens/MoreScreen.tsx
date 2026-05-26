@@ -6,6 +6,8 @@ import { Avatar, Card, Chip, Row, T } from '../components/atoms';
 import { ScreenScroll } from '../components/ScreenContainer';
 import { useToast } from '../components/Toast';
 import { useActions } from '../state/AppActions';
+import { useEntitlements } from '../state/EntitlementsStore';
+import { tierPriceLabel } from '../state/entitlements';
 import { colors } from '../theme';
 
 type Lang = 'bn' | 'en' | 'mix';
@@ -14,6 +16,7 @@ export function MoreScreen() {
   const { user, signOut, offline, setOffline } = useAuth();
   const actions = useActions();
   const toast = useToast();
+  const { tierMeta, addOns } = useEntitlements();
   const [openPanel, setOpenPanel] = useState<'language' | 'security' | null>(null);
   const [lang, setLang] = useState<Lang>('bn');
   const [pin, setPin] = useState(true);
@@ -40,6 +43,25 @@ export function MoreScreen() {
             </View>
           </Row>
         </Card>
+
+        <Pressable onPress={() => actions.openOverlay('pricing')}>
+          <Card style={{ padding: 16, marginBottom: 14, borderColor: tierMeta.color, borderWidth: 1.5 }}>
+            <Row gap={12}>
+              <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: tierMeta.color, alignItems: 'center', justifyContent: 'center' }}>
+                <Ionicons name="ribbon" size={22} color="#fff" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Row gap={6}>
+                  <T size={12} color={colors.ink2}>আপনার প্যাকেজ</T>
+                  {addOns.size > 0 ? <Chip kind="saffron" size={10}>+{addOns.size} অ্যাড-অন</Chip> : null}
+                </Row>
+                <T weight="b" size={16} color={tierMeta.color}>{tierMeta.nameBn} · {tierPriceLabel(tierMeta.id)}/মাস</T>
+                <T size={12} color={colors.ink2} style={{ marginTop: 2 }}>{tierMeta.tagline}</T>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color={colors.ink2} />
+            </Row>
+          </Card>
+        </Pressable>
 
         <Card style={{ padding: 14, marginBottom: 14 }}>
           <Row style={{ justifyContent: 'space-between' }}>

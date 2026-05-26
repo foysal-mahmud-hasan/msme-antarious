@@ -22,6 +22,7 @@ import {
   markOnboardedSkipped,
 } from './src/screens/SathiOnboardingScreen';
 import { DebtsProvider } from './src/state/DebtsStore';
+import { EntitlementsProvider } from './src/state/EntitlementsStore';
 import { ProductsProvider } from './src/state/ProductsStore';
 import { TransactionsProvider } from './src/state/TransactionsStore';
 import { colors } from './src/theme';
@@ -114,13 +115,15 @@ export default function App() {
       <AppFrame>
         <ToastProvider>
           <AuthProvider>
-            <TransactionsProvider>
-              <ProductsProvider>
-                <DebtsProvider>
-                  <Gate />
-                </DebtsProvider>
-              </ProductsProvider>
-            </TransactionsProvider>
+            <EntitlementsProvider>
+              <TransactionsProvider>
+                <ProductsProvider>
+                  <DebtsProvider>
+                    <Gate />
+                  </DebtsProvider>
+                </ProductsProvider>
+              </TransactionsProvider>
+            </EntitlementsProvider>
           </AuthProvider>
         </ToastProvider>
       </AppFrame>
