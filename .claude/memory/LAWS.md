@@ -40,6 +40,8 @@ Mockups frequently rebrand (e.g. উদ্যোম / Uddyom, মায়া / 
 
 If an element exists in the desktop/web layout (e.g. the Lender Portal left sidebar), it MUST remain **accessible** on mobile via an adapted pattern — hamburger menu, drawer, bottom sheet, or horizontal scroll. Hiding it behind `isDesktop &&` with no mobile equivalent is a bug, not a layout choice. (Origin: Lender Portal sidebar was dropped on mobile — 2026-05-25.)
 
+**Clarification — Law 4 governs responsive parity, NOT entitlement gating.** A feature locked because the user hasn't paid for it is a different axis. Locked features MUST be shown **visibly locked** (🔒 + tier badge + upsell), **identically on every breakpoint** — never silently hidden, never platform-dependent. "Hide entirely below tier" is forbidden; "visible + locked → upsell" is the rule. (Origin: tier system — 2026-05-26.)
+
 ## LAW 5 — Expo v54
 
 This app is Expo ~54. Read the exact versioned docs at https://docs.expo.dev/versions/v54.0.0/ before writing Expo/React-Native code. (See also `AGENTS.md`.)
