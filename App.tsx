@@ -23,6 +23,7 @@ import {
 } from './src/screens/SathiOnboardingScreen';
 import { DebtsProvider } from './src/state/DebtsStore';
 import { EntitlementsProvider } from './src/state/EntitlementsStore';
+import { LeadsProvider } from './src/state/LeadsStore';
 import { ProductsProvider } from './src/state/ProductsStore';
 import { TransactionsProvider } from './src/state/TransactionsStore';
 import { colors } from './src/theme';
@@ -119,7 +120,9 @@ export default function App() {
               <TransactionsProvider>
                 <ProductsProvider>
                   <DebtsProvider>
-                    <Gate />
+                    <LeadsProvider>
+                      <Gate />
+                    </LeadsProvider>
                   </DebtsProvider>
                 </ProductsProvider>
               </TransactionsProvider>

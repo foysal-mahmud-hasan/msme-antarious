@@ -11,6 +11,7 @@ import { FinanceScreen } from '../screens/FinanceScreen';
 import { HaatPrepScreen } from '../screens/HaatPrepScreen';
 import { HomeScreen } from '../screens/HomeScreen';
 import { JourneyScreen } from '../screens/JourneyScreen';
+import { LeadsScreen } from '../screens/LeadsScreen';
 import { LedgerScreen } from '../screens/LedgerScreen';
 import { MarketScreen } from '../screens/MarketScreen';
 import { MessagesScreen } from '../screens/MessagesScreen';
@@ -186,6 +187,9 @@ export function DesktopShell({ route, setRoute, overlay }: Props) {
       </DrawerOverlay>
       <DrawerOverlay open={overlay === 'upgrade'} onClose={actions.closeOverlay} width={520}>
         <UpgradeSheet onClose={actions.closeOverlay} feature={actions.overlayPrefill as Feature | undefined} />
+      </DrawerOverlay>
+      <DrawerOverlay open={overlay === 'leads'} onClose={actions.closeOverlay} width={640}>
+        <LeadsScreen onClose={actions.closeOverlay} />
       </DrawerOverlay>
       <DrawerOverlay open={overlay === 'trust'} onClose={actions.closeOverlay} width={560}>
         <TrustJourneyScreen onClose={actions.closeOverlay} />

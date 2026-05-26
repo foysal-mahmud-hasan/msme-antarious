@@ -11,6 +11,7 @@ import { FinanceScreen } from '../screens/FinanceScreen';
 import { HaatPrepScreen } from '../screens/HaatPrepScreen';
 import { HomeScreen } from '../screens/HomeScreen';
 import { JourneyScreen } from '../screens/JourneyScreen';
+import { LeadsScreen } from '../screens/LeadsScreen';
 import { LedgerScreen } from '../screens/LedgerScreen';
 import { MarketScreen } from '../screens/MarketScreen';
 import { MessagesScreen } from '../screens/MessagesScreen';
@@ -118,6 +119,9 @@ export function MobileShell({ route, setRoute, overlay }: Props) {
       </Overlay>
       <Overlay open={overlay === 'upgrade'}>
         <UpgradeSheet onClose={actions.closeOverlay} feature={actions.overlayPrefill as Feature | undefined} />
+      </Overlay>
+      <Overlay open={overlay === 'leads'}>
+        <LeadsScreen onClose={actions.closeOverlay} />
       </Overlay>
       <Overlay open={overlay === 'trust'}>
         <TrustJourneyScreen onClose={actions.closeOverlay} />
