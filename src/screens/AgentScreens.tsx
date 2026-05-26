@@ -557,8 +557,8 @@ function MoneyDecisionCard({ onApprove, onDefer }: { onApprove: () => void; onDe
         <T size={13} color={colors.ink} style={{ flex: 1, lineHeight: 19 }}>"৮টি বাকি। ৩ দিনে শেষ হবে। China থেকে আসতে ৩৫ দিন। এখন না দিলে স্টক আউট।"</T>
       </View>
       <Row gap={8} style={{ marginTop: 12 }}>
-        <Btn kind="primary" size="sm" label="✓ অনুমোদন করি" full onPress={onApprove} style={{ backgroundColor: colors.green }} />
-        <Btn kind="greyOutline" size="sm" label="⏸ পরে করব" full onPress={onDefer} />
+        <View style={{ flex: 1 }}><Btn kind="primary" size="sm" label="✓ অনুমোদন করি" full onPress={onApprove} style={{ backgroundColor: colors.green }} /></View>
+        <View style={{ flex: 1 }}><Btn kind="greyOutline" size="sm" label="⏸ পরে করব" full onPress={onDefer} /></View>
       </Row>
     </Card>
   );
@@ -585,9 +585,9 @@ function LargeOrderCard({ onAccept, onReject, onPeek }: { onAccept: () => void; 
         <T size={13} style={{ flex: 1, lineHeight: 19 }}>"এই কাস্টমার নতুন। আগে কখনো অর্ডার দেননি। সাবধান থাকা ভালো।"</T>
       </View>
       <Row gap={6} style={{ marginTop: 12 }}>
-        <Btn kind="primary" size="sm" label="✅ নিই" full style={{ backgroundColor: colors.green }} onPress={onAccept} />
-        <Btn kind="coralOutline" size="sm" label="❌ না নিই" full onPress={onReject} />
-        <Btn kind="greyOutline" size="sm" label="👁 দেখি" full onPress={onPeek} />
+        <View style={{ flex: 1 }}><Btn kind="primary" size="sm" label="✅ নিই" full style={{ backgroundColor: colors.green }} onPress={onAccept} /></View>
+        <View style={{ flex: 1 }}><Btn kind="coralOutline" size="sm" label="❌ না নিই" full onPress={onReject} /></View>
+        <View style={{ flex: 1 }}><Btn kind="greyOutline" size="sm" label="👁 দেখি" full onPress={onPeek} /></View>
       </Row>
     </Card>
   );
@@ -607,8 +607,8 @@ function CampaignCard({ onSend, onEdit }: { onSend: () => void; onEdit: () => vo
         </T>
       </View>
       <Row gap={8} style={{ marginTop: 12 }}>
-        <Btn kind="teal" size="sm" label="✅ পাঠাও" full onPress={onSend} />
-        <Btn kind="greyOutline" size="sm" label="✏️ পরিবর্তন" full onPress={onEdit} />
+        <View style={{ flex: 1 }}><Btn kind="teal" size="sm" label="✅ পাঠাও" full onPress={onSend} /></View>
+        <View style={{ flex: 1 }}><Btn kind="greyOutline" size="sm" label="✏️ পরিবর্তন" full onPress={onEdit} /></View>
       </Row>
     </Card>
   );
@@ -637,8 +637,8 @@ function DigitalStepCard({ onPost, onPeek }: { onPost: () => void; onPeek: () =>
         </View>
       </View>
       <Row gap={8} style={{ marginTop: 12 }}>
-        <Btn kind="primary" size="sm" label="✅ পোস্ট করো" full style={{ backgroundColor: colors.green }} onPress={onPost} />
-        <Btn kind="greyOutline" size="sm" label="👁 দেখি আগে" full onPress={onPeek} />
+        <View style={{ flex: 1 }}><Btn kind="primary" size="sm" label="✅ পোস্ট করো" full style={{ backgroundColor: colors.green }} onPress={onPost} /></View>
+        <View style={{ flex: 1 }}><Btn kind="greyOutline" size="sm" label="👁 দেখি আগে" full onPress={onPeek} /></View>
       </Row>
     </Card>
   );
