@@ -28,7 +28,9 @@ import { SathiChatScreen } from '../screens/SathiChatScreen';
 import { SathiDayScreen } from '../screens/SathiDayScreen';
 import { SathiMemoryScreen } from '../screens/SathiMemoryScreen';
 import { TrustJourneyScreen } from '../screens/TrustJourneyScreen';
+import { UpgradeSheet } from '../screens/UpgradeSheet';
 import { WebsiteScreen } from '../screens/WebsiteScreen';
+import { Feature } from '../state/entitlements';
 import { OverlayName, Route, useActions } from '../state/AppActions';
 import { colors } from '../theme';
 
@@ -113,6 +115,9 @@ export function MobileShell({ route, setRoute, overlay }: Props) {
       </Overlay>
       <Overlay open={overlay === 'pricing'}>
         <PricingScreen onClose={actions.closeOverlay} />
+      </Overlay>
+      <Overlay open={overlay === 'upgrade'}>
+        <UpgradeSheet onClose={actions.closeOverlay} feature={actions.overlayPrefill as Feature | undefined} />
       </Overlay>
       <Overlay open={overlay === 'trust'}>
         <TrustJourneyScreen onClose={actions.closeOverlay} />

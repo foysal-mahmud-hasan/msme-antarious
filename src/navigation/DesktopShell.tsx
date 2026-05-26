@@ -28,7 +28,9 @@ import { SathiChatScreen } from '../screens/SathiChatScreen';
 import { SathiDayScreen } from '../screens/SathiDayScreen';
 import { SathiMemoryScreen } from '../screens/SathiMemoryScreen';
 import { TrustJourneyScreen } from '../screens/TrustJourneyScreen';
+import { UpgradeSheet } from '../screens/UpgradeSheet';
 import { WebsiteScreen } from '../screens/WebsiteScreen';
+import { Feature } from '../state/entitlements';
 import { OverlayName, Route, useActions } from '../state/AppActions';
 import { colors } from '../theme';
 
@@ -179,8 +181,11 @@ export function DesktopShell({ route, setRoute, overlay }: Props) {
       <DrawerOverlay open={overlay === 'website'} onClose={actions.closeOverlay} width={640}>
         <WebsiteScreen onClose={actions.closeOverlay} />
       </DrawerOverlay>
-      <DrawerOverlay open={overlay === 'pricing'} onClose={actions.closeOverlay} width={640}>
+      <DrawerOverlay open={overlay === 'pricing'} onClose={actions.closeOverlay} width={760}>
         <PricingScreen onClose={actions.closeOverlay} />
+      </DrawerOverlay>
+      <DrawerOverlay open={overlay === 'upgrade'} onClose={actions.closeOverlay} width={520}>
+        <UpgradeSheet onClose={actions.closeOverlay} feature={actions.overlayPrefill as Feature | undefined} />
       </DrawerOverlay>
       <DrawerOverlay open={overlay === 'trust'} onClose={actions.closeOverlay} width={560}>
         <TrustJourneyScreen onClose={actions.closeOverlay} />
