@@ -46,12 +46,7 @@ type Props = {
   overlay: OverlayName | null;
 };
 
-/** Overlays that render full-screen on desktop (they center their own content). */
-const FULLSCREEN_OVERLAYS: OverlayName[] = [
-  'pricing', 'upgrade', 'leads', 'insights', 'complaints', 'calendar', 'courier', 'inventory',
-];
-
-export function DesktopShell({ route, setRoute, overlay }: Props) {
+export function DesktopShell({ route, overlay }: Props) {
   const { user, offline } = useAuth();
   const { width } = useResponsive();
   const actions = useActions();
@@ -64,6 +59,44 @@ export function DesktopShell({ route, setRoute, overlay }: Props) {
     { id: 'finance', label: 'হিসাব · Finance', icon: 'stats-chart-outline' },
     { id: 'more', label: 'আরও · More', icon: 'ellipsis-horizontal' },
   ];
+
+  // Overlays render INLINE in the content area so the sidebar (primary nav)
+  // always stays visible — the user is never stranded with just a back button.
+  const renderOverlayScreen = () => {
+    const close = actions.closeOverlay;
+    switch (overlay) {
+      case 'sathi': return <SathiChatScreen onClose={close} prefill={actions.overlayPrefill} />;
+      case 'agent': return <AgentLiveScreen onClose={close} />;
+      case 'autopilot': return <AutopilotScreen onClose={close} />;
+      case 'approvals': return <ApprovalsScreen onClose={close} />;
+      case 'sale': return <QuickSaleScreen onClose={close} />;
+      case 'haat': return <HaatPrepScreen onClose={close} />;
+      case 'ledger': return <LedgerScreen onClose={close} />;
+      case 'journey': return <JourneyScreen onClose={close} />;
+      case 'transaction': return <NewTransactionScreen onClose={close} />;
+      case 'order': return <OrderDetailsScreen onClose={close} orderId={actions.overlayPrefill} />;
+      case 'pksfReport': return <PKSFReportScreen onClose={close} />;
+      case 'newProduct': return <NewProductScreen onClose={close} />;
+      case 'newDebt': return <NewDebtScreen onClose={close} />;
+      case 'credit': return <CreditScreen onClose={close} />;
+      case 'brand': return <BrandScreen onClose={close} />;
+      case 'website': return <WebsiteScreen onClose={close} />;
+      case 'pricing': return <PricingScreen onClose={close} />;
+      case 'upgrade': return <UpgradeSheet onClose={close} feature={actions.overlayPrefill as Feature | undefined} />;
+      case 'leads': return <LeadsScreen onClose={close} />;
+      case 'insights': return <InsightsScreen onClose={close} />;
+      case 'complaints': return <ComplaintsScreen onClose={close} />;
+      case 'calendar': return <CalendarScreen onClose={close} />;
+      case 'courier': return <CourierScreen onClose={close} />;
+      case 'inventory': return <InventoryScreen onClose={close} />;
+      case 'trust': return <TrustJourneyScreen onClose={close} />;
+      case 'day': return <SathiDayScreen onClose={close} />;
+      case 'memory': return <SathiMemoryScreen onClose={close} />;
+      case 'lender':
+      case 'po': return <LenderPortalScreen onClose={close} />;
+      default: return null;
+    }
+  };
 
   return (
     <View style={styles.shell}>
@@ -86,7 +119,7 @@ export function DesktopShell({ route, setRoute, overlay }: Props) {
             return (
               <Pressable
                 key={it.id}
-                onPress={() => setRoute(it.id)}
+                onPress={() => actions.goto(it.id)}
                 style={[styles.navItem, active ? styles.navItemActive : null]}
               >
                 <Ionicons name={it.icon} size={18} color={active ? colors.saffron : colors.ink} />
@@ -136,91 +169,19 @@ export function DesktopShell({ route, setRoute, overlay }: Props) {
 
       <View style={styles.content}>
         <View style={{ flex: 1 }}>
-          {route === 'home' && (offline ? <OfflineHomeScreen /> : <HomeScreen />)}
-          {route === 'messages' && <MessagesScreen />}
-          {route === 'market' && <MarketScreen />}
-          {route === 'finance' && <FinanceScreen />}
-          {route === 'more' && <MoreScreen />}
+          {overlay ? (
+            renderOverlayScreen()
+          ) : (
+            <>
+              {route === 'home' && (offline ? <OfflineHomeScreen /> : <HomeScreen />)}
+              {route === 'messages' && <MessagesScreen />}
+              {route === 'market' && <MarketScreen />}
+              {route === 'finance' && <FinanceScreen />}
+              {route === 'more' && <MoreScreen />}
+            </>
+          )}
         </View>
       </View>
-
-      <DrawerOverlay open={overlay === 'sathi'} onClose={actions.closeOverlay}>
-        <SathiChatScreen onClose={actions.closeOverlay} prefill={actions.overlayPrefill} />
-      </DrawerOverlay>
-      <DrawerOverlay open={overlay === 'agent'} onClose={actions.closeOverlay} dark>
-        <AgentLiveScreen onClose={actions.closeOverlay} />
-      </DrawerOverlay>
-      <DrawerOverlay open={overlay === 'autopilot'} onClose={actions.closeOverlay}>
-        <AutopilotScreen onClose={actions.closeOverlay} />
-      </DrawerOverlay>
-      <DrawerOverlay open={overlay === 'approvals'} onClose={actions.closeOverlay}>
-        <ApprovalsScreen onClose={actions.closeOverlay} />
-      </DrawerOverlay>
-      <DrawerOverlay open={overlay === 'sale'} onClose={actions.closeOverlay} width={680}>
-        <QuickSaleScreen onClose={actions.closeOverlay} />
-      </DrawerOverlay>
-      <DrawerOverlay open={overlay === 'haat'} onClose={actions.closeOverlay} width={520}>
-        <HaatPrepScreen onClose={actions.closeOverlay} />
-      </DrawerOverlay>
-      <DrawerOverlay open={overlay === 'ledger'} onClose={actions.closeOverlay} width={560}>
-        <LedgerScreen onClose={actions.closeOverlay} />
-      </DrawerOverlay>
-      <DrawerOverlay open={overlay === 'journey'} onClose={actions.closeOverlay} width={560}>
-        <JourneyScreen onClose={actions.closeOverlay} />
-      </DrawerOverlay>
-      <DrawerOverlay open={overlay === 'transaction'} onClose={actions.closeOverlay} width={560}>
-        <NewTransactionScreen onClose={actions.closeOverlay} />
-      </DrawerOverlay>
-      <DrawerOverlay open={overlay === 'order'} onClose={actions.closeOverlay} width={680}>
-        <OrderDetailsScreen onClose={actions.closeOverlay} orderId={actions.overlayPrefill} />
-      </DrawerOverlay>
-      <DrawerOverlay open={overlay === 'pksfReport'} onClose={actions.closeOverlay} width={720}>
-        <PKSFReportScreen onClose={actions.closeOverlay} />
-      </DrawerOverlay>
-      <DrawerOverlay open={overlay === 'newProduct'} onClose={actions.closeOverlay} width={520}>
-        <NewProductScreen onClose={actions.closeOverlay} />
-      </DrawerOverlay>
-      <DrawerOverlay open={overlay === 'newDebt'} onClose={actions.closeOverlay} width={520}>
-        <NewDebtScreen onClose={actions.closeOverlay} />
-      </DrawerOverlay>
-      <DrawerOverlay open={overlay === 'credit'} onClose={actions.closeOverlay} width={560}>
-        <CreditScreen onClose={actions.closeOverlay} />
-      </DrawerOverlay>
-      <DrawerOverlay open={overlay === 'brand'} onClose={actions.closeOverlay} width={560}>
-        <BrandScreen onClose={actions.closeOverlay} />
-      </DrawerOverlay>
-      <DrawerOverlay open={overlay === 'website'} onClose={actions.closeOverlay} width={640}>
-        <WebsiteScreen onClose={actions.closeOverlay} />
-      </DrawerOverlay>
-      {/* Content-heavy tier screens: full-screen on desktop (each centers its own
-          content with maxWidth) — never cramped into a narrow side drawer. */}
-      {FULLSCREEN_OVERLAYS.includes(overlay as OverlayName) ? (
-        <View style={StyleSheet.absoluteFill}>
-          {overlay === 'pricing' && <PricingScreen onClose={actions.closeOverlay} />}
-          {overlay === 'upgrade' && <UpgradeSheet onClose={actions.closeOverlay} feature={actions.overlayPrefill as Feature | undefined} />}
-          {overlay === 'leads' && <LeadsScreen onClose={actions.closeOverlay} />}
-          {overlay === 'insights' && <InsightsScreen onClose={actions.closeOverlay} />}
-          {overlay === 'complaints' && <ComplaintsScreen onClose={actions.closeOverlay} />}
-          {overlay === 'calendar' && <CalendarScreen onClose={actions.closeOverlay} />}
-          {overlay === 'courier' && <CourierScreen onClose={actions.closeOverlay} />}
-          {overlay === 'inventory' && <InventoryScreen onClose={actions.closeOverlay} />}
-        </View>
-      ) : null}
-      <DrawerOverlay open={overlay === 'trust'} onClose={actions.closeOverlay} width={560}>
-        <TrustJourneyScreen onClose={actions.closeOverlay} />
-      </DrawerOverlay>
-      <DrawerOverlay open={overlay === 'day'} onClose={actions.closeOverlay} width={560}>
-        <SathiDayScreen onClose={actions.closeOverlay} />
-      </DrawerOverlay>
-      <DrawerOverlay open={overlay === 'memory'} onClose={actions.closeOverlay} width={520}>
-        <SathiMemoryScreen onClose={actions.closeOverlay} />
-      </DrawerOverlay>
-
-      {(overlay === 'lender' || (overlay === 'po' && user?.hasPOPortal)) ? (
-        <View style={StyleSheet.absoluteFill}>
-          <LenderPortalScreen onClose={actions.closeOverlay} />
-        </View>
-      ) : null}
     </View>
   );
 }
@@ -244,44 +205,6 @@ function UserPill() {
   );
 }
 
-function DrawerOverlay({
-  open,
-  onClose,
-  children,
-  width = 440,
-  dark,
-}: {
-  open: boolean;
-  onClose: () => void;
-  children: React.ReactNode;
-  width?: number;
-  dark?: boolean;
-}) {
-  if (!open) return null;
-  return (
-    <View style={StyleSheet.absoluteFill}>
-      <Pressable onPress={onClose} style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(15,23,42,0.45)' }]} />
-      <View
-        style={{
-          position: 'absolute',
-          right: 0,
-          top: 0,
-          bottom: 0,
-          width,
-          maxWidth: ('100%') as `${number}%`,
-          backgroundColor: dark ? '#0f172a' : colors.bg,
-          shadowColor: '#000',
-          shadowOpacity: 0.25,
-          shadowRadius: 28,
-          shadowOffset: { width: -8, height: 0 },
-          elevation: 16,
-        }}
-      >
-        {children}
-      </View>
-    </View>
-  );
-}
 
 const styles = StyleSheet.create({
   shell: { flex: 1, flexDirection: 'row', backgroundColor: colors.bg },

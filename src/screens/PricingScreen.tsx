@@ -63,7 +63,7 @@ export function PricingScreen({ onClose }: { onClose: () => void; current?: stri
           {/* Tier cards — 1 col mobile / 2 tablet / 3 wide-desktop */}
           <View style={{ flexDirection: cols === 1 ? 'column' : 'row', flexWrap: 'wrap', gap: 14, alignItems: 'stretch' }}>
             {TIER_ORDER.map((id) => (
-              <View key={id} style={{ width: cardW as `${number}%` }}>
+              <View key={id} style={{ width: cardW as `${number}%`, alignSelf: 'stretch' }}>
                 <TierCard
                   id={id}
                   current={currentTier === id}
@@ -131,7 +131,7 @@ function TierCard({
         <T size={13} color={colors.ink2}>/মাস</T>
       </Row>
 
-      <View style={{ gap: 8 }}>
+      <View style={{ gap: 8, marginBottom: 16 }}>
         {t.order > 0 && (
           <Row gap={8}>
             <View style={{ width: 18, height: 18, borderRadius: 9, backgroundColor: colors.greenSoft, alignItems: 'center', justifyContent: 'center' }}>
@@ -154,7 +154,7 @@ function TierCard({
         kind={current ? 'greyOutline' : featured ? 'primary' : 'greyOutline'}
         label={current ? '✓ বর্তমান প্যাকেজ' : `${t.nameBn} নিন →`}
         full
-        style={{ marginTop: 16, ...(current ? {} : featured ? { backgroundColor: t.color } : {}) }}
+        style={{ marginTop: 'auto', ...(current ? {} : featured ? { backgroundColor: t.color } : {}) }}
         onPress={onChoose}
         disabled={current}
       />

@@ -52,21 +52,23 @@ export function MobileShell({ route, setRoute, overlay }: Props) {
 
   return (
     <View style={{ flex: 1 }}>
+      {/* Stage = everything above the tab bar. Overlays fill the stage, so the
+          BottomBar (primary nav) stays visible — user is never stranded. */}
       <View style={{ flex: 1 }}>
-        {route === 'home' &&
-          (offline ? (
-            <OfflineHomeScreen />
-          ) : (
-            <HomeScreen />
-          ))}
-        {route === 'messages' && <MessagesScreen />}
-        {route === 'market' && <MarketScreen />}
-        {route === 'finance' && <FinanceScreen />}
-        {route === 'more' && <MoreScreen />}
-      </View>
+        <View style={{ flex: 1 }}>
+          {route === 'home' &&
+            (offline ? (
+              <OfflineHomeScreen />
+            ) : (
+              <HomeScreen />
+            ))}
+          {route === 'messages' && <MessagesScreen />}
+          {route === 'market' && <MarketScreen />}
+          {route === 'finance' && <FinanceScreen />}
+          {route === 'more' && <MoreScreen />}
+        </View>
 
-      <BottomBar active={route} onChange={setRoute} />
-      {overlay === null ? <SathiFAB onPress={() => actions.openOverlay('sathi')} /> : null}
+        {overlay === null ? <SathiFAB onPress={() => actions.openOverlay('sathi')} /> : null}
 
       <Overlay open={overlay === 'sathi'}>
         <SathiChatScreen onClose={actions.closeOverlay} prefill={actions.overlayPrefill} />
@@ -152,6 +154,8 @@ export function MobileShell({ route, setRoute, overlay }: Props) {
       <Overlay open={overlay === 'memory'}>
         <SathiMemoryScreen onClose={actions.closeOverlay} />
       </Overlay>
+      </View>
+      <BottomBar active={route} onChange={(r) => actions.goto(r)} />
     </View>
   );
 }
