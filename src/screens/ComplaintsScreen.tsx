@@ -2,7 +2,6 @@ import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { Pressable, ScrollView, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useResponsive } from '../components/AppFrame';
 import { Btn, Card, Row, T } from '../components/atoms';
 import { useToast } from '../components/Toast';
 import {
@@ -19,7 +18,6 @@ const BN = (n: number) => String(n).replace(/\d/g, (d) => '০১২৩৪৫৬
 const NEXT_LABEL: Record<ComplaintStatus, string> = { open: 'কাজ শুরু করুন', progress: 'সমাধান হয়েছে ✓', resolved: '' };
 
 export function ComplaintsScreen({ onClose }: { onClose: () => void }) {
-  const { isDesktop } = useResponsive();
   const toast = useToast();
   const { complaints, openCount, progressCount, resolvedCount, resolutionRate, addComplaint, advanceStatus } = useComplaints();
   const [showForm, setShowForm] = useState(false);
@@ -42,7 +40,7 @@ export function ComplaintsScreen({ onClose }: { onClose: () => void }) {
       </View>
 
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
-        <View style={{ width: '100%', maxWidth: isDesktop ? 640 : undefined, alignSelf: 'center', paddingHorizontal: 16, paddingTop: 16 }}>
+        <View style={{ width: '100%', maxWidth: 640, alignSelf: 'center', paddingHorizontal: 16, paddingTop: 16 }}>
           <Row gap={10} style={{ marginBottom: 14 }}>
             <StatBox value={BN(openCount)} label="নতুন" color={colors.coral} />
             <StatBox value={BN(progressCount)} label="চলমান" color={colors.amber} />

@@ -2,7 +2,6 @@ import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useResponsive } from '../components/AppFrame';
 import { Card, Row, SathiBadge, T } from '../components/atoms';
 import { useToast } from '../components/Toast';
 import { useProducts } from '../state/ProductsStore';
@@ -13,7 +12,6 @@ const BN = (n: number) => String(n).replace(/\d/g, (d) => '০১২৩৪৫৬
 type Move = { id: string; product: string; qty: number; kind: 'in' | 'out' };
 
 export function InventoryScreen({ onClose }: { onClose: () => void }) {
-  const { isDesktop } = useResponsive();
   const toast = useToast();
   const { products, lowCount, adjustStock } = useProducts();
   const [moves, setMoves] = useState<Move[]>([]);
@@ -50,7 +48,7 @@ export function InventoryScreen({ onClose }: { onClose: () => void }) {
       </View>
 
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
-        <View style={{ width: '100%', maxWidth: isDesktop ? 680 : undefined, alignSelf: 'center', paddingHorizontal: 16, paddingTop: 16 }}>
+        <View style={{ width: '100%', maxWidth: 720, alignSelf: 'center', paddingHorizontal: 16, paddingTop: 16 }}>
           <Row gap={10} style={{ marginBottom: 14 }}>
             <StatBox value={BN(products.length)} label="পণ্য" color={colors.ink} />
             <StatBox value={BN(lowCount)} label="কম স্টক" color={lowCount > 0 ? colors.coral : colors.green} />

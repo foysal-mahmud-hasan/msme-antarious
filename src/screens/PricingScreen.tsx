@@ -20,9 +20,13 @@ const TIER_ORDER: TierId[] = ['tier0', 'tier1', 'tier2', 'tier3', 'tier4'];
 const FEATURED: TierId = 'tier2';
 
 export function PricingScreen({ onClose }: { onClose: () => void; current?: string }) {
-  const { isDesktop } = useResponsive();
+  const { width } = useResponsive();
   const toast = useToast();
   const { tier: currentTier, setTier, addOns, toggleAddOn } = useEntitlements();
+
+  const cols = width >= 1100 ? 3 : width >= 680 ? 2 : 1;
+  const cardW = cols === 3 ? '31.5%' : cols === 2 ? '48%' : '100%';
+  const contentMax = cols === 3 ? 1060 : cols === 2 ? 780 : 620;
 
   const onChoose = (t: TierId) => {
     if (t === currentTier) return;
@@ -45,7 +49,7 @@ export function PricingScreen({ onClose }: { onClose: () => void; current?: stri
       </View>
 
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
-        <View style={{ width: '100%', maxWidth: isDesktop ? 760 : undefined, alignSelf: 'center', paddingHorizontal: 16, paddingTop: 20 }}>
+        <View style={{ width: '100%', maxWidth: contentMax, alignSelf: 'center', paddingHorizontal: 16, paddingTop: 20 }}>
           <Card tinted={colors.tealSoft} style={{ padding: 12, marginBottom: 18 }}>
             <Row gap={8}>
               <SathiBadge />
@@ -56,10 +60,10 @@ export function PricingScreen({ onClose }: { onClose: () => void; current?: stri
             </Row>
           </Card>
 
-          {/* Tier cards (responsive grid on desktop, stack on mobile) */}
-          <View style={{ flexDirection: isDesktop ? 'row' : 'column', flexWrap: isDesktop ? 'wrap' : 'nowrap', gap: 14, marginHorizontal: isDesktop ? -7 : 0 }}>
+          {/* Tier cards — 1 col mobile / 2 tablet / 3 wide-desktop */}
+          <View style={{ flexDirection: cols === 1 ? 'column' : 'row', flexWrap: 'wrap', gap: 14, alignItems: 'stretch' }}>
             {TIER_ORDER.map((id) => (
-              <View key={id} style={{ width: isDesktop ? '48%' : '100%', paddingHorizontal: isDesktop ? 0 : 0 }}>
+              <View key={id} style={{ width: cardW as `${number}%` }}>
                 <TierCard
                   id={id}
                   current={currentTier === id}

@@ -2,7 +2,6 @@ import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useResponsive } from '../components/AppFrame';
 import { Btn, Card, Row, T } from '../components/atoms';
 import { useToast } from '../components/Toast';
 import { useActions } from '../state/AppActions';
@@ -19,7 +18,6 @@ import {
 import { colors } from '../theme';
 
 export function UpgradeSheet({ onClose, feature }: { onClose: () => void; feature?: Feature }) {
-  const { isDesktop } = useResponsive();
   const toast = useToast();
   const actions = useActions();
   const { tier, setTier, toggleAddOn, addOns } = useEntitlements();
@@ -71,7 +69,7 @@ export function UpgradeSheet({ onClose, feature }: { onClose: () => void; featur
       </View>
 
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
-        <View style={{ width: '100%', maxWidth: isDesktop ? 520 : undefined, alignSelf: 'center', paddingHorizontal: 16, paddingTop: 20 }}>
+        <View style={{ width: '100%', maxWidth: 520, alignSelf: 'center', paddingHorizontal: 16, paddingTop: 20 }}>
           {/* Locked feature hero */}
           <View style={{ alignItems: 'center', marginBottom: 18 }}>
             <View style={{ width: 76, height: 76, borderRadius: 22, backgroundColor: titleColor, alignItems: 'center', justifyContent: 'center', marginBottom: 14 }}>

@@ -46,6 +46,11 @@ type Props = {
   overlay: OverlayName | null;
 };
 
+/** Overlays that render full-screen on desktop (they center their own content). */
+const FULLSCREEN_OVERLAYS: OverlayName[] = [
+  'pricing', 'upgrade', 'leads', 'insights', 'complaints', 'calendar', 'courier', 'inventory',
+];
+
 export function DesktopShell({ route, setRoute, overlay }: Props) {
   const { user, offline } = useAuth();
   const { width } = useResponsive();
@@ -187,30 +192,20 @@ export function DesktopShell({ route, setRoute, overlay }: Props) {
       <DrawerOverlay open={overlay === 'website'} onClose={actions.closeOverlay} width={640}>
         <WebsiteScreen onClose={actions.closeOverlay} />
       </DrawerOverlay>
-      <DrawerOverlay open={overlay === 'pricing'} onClose={actions.closeOverlay} width={760}>
-        <PricingScreen onClose={actions.closeOverlay} />
-      </DrawerOverlay>
-      <DrawerOverlay open={overlay === 'upgrade'} onClose={actions.closeOverlay} width={520}>
-        <UpgradeSheet onClose={actions.closeOverlay} feature={actions.overlayPrefill as Feature | undefined} />
-      </DrawerOverlay>
-      <DrawerOverlay open={overlay === 'leads'} onClose={actions.closeOverlay} width={640}>
-        <LeadsScreen onClose={actions.closeOverlay} />
-      </DrawerOverlay>
-      <DrawerOverlay open={overlay === 'insights'} onClose={actions.closeOverlay} width={720}>
-        <InsightsScreen onClose={actions.closeOverlay} />
-      </DrawerOverlay>
-      <DrawerOverlay open={overlay === 'complaints'} onClose={actions.closeOverlay} width={640}>
-        <ComplaintsScreen onClose={actions.closeOverlay} />
-      </DrawerOverlay>
-      <DrawerOverlay open={overlay === 'calendar'} onClose={actions.closeOverlay} width={640}>
-        <CalendarScreen onClose={actions.closeOverlay} />
-      </DrawerOverlay>
-      <DrawerOverlay open={overlay === 'courier'} onClose={actions.closeOverlay} width={620}>
-        <CourierScreen onClose={actions.closeOverlay} />
-      </DrawerOverlay>
-      <DrawerOverlay open={overlay === 'inventory'} onClose={actions.closeOverlay} width={680}>
-        <InventoryScreen onClose={actions.closeOverlay} />
-      </DrawerOverlay>
+      {/* Content-heavy tier screens: full-screen on desktop (each centers its own
+          content with maxWidth) — never cramped into a narrow side drawer. */}
+      {FULLSCREEN_OVERLAYS.includes(overlay as OverlayName) ? (
+        <View style={StyleSheet.absoluteFill}>
+          {overlay === 'pricing' && <PricingScreen onClose={actions.closeOverlay} />}
+          {overlay === 'upgrade' && <UpgradeSheet onClose={actions.closeOverlay} feature={actions.overlayPrefill as Feature | undefined} />}
+          {overlay === 'leads' && <LeadsScreen onClose={actions.closeOverlay} />}
+          {overlay === 'insights' && <InsightsScreen onClose={actions.closeOverlay} />}
+          {overlay === 'complaints' && <ComplaintsScreen onClose={actions.closeOverlay} />}
+          {overlay === 'calendar' && <CalendarScreen onClose={actions.closeOverlay} />}
+          {overlay === 'courier' && <CourierScreen onClose={actions.closeOverlay} />}
+          {overlay === 'inventory' && <InventoryScreen onClose={actions.closeOverlay} />}
+        </View>
+      ) : null}
       <DrawerOverlay open={overlay === 'trust'} onClose={actions.closeOverlay} width={560}>
         <TrustJourneyScreen onClose={actions.closeOverlay} />
       </DrawerOverlay>

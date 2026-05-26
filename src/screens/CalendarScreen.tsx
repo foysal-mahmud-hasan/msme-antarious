@@ -2,7 +2,6 @@ import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useResponsive } from '../components/AppFrame';
 import { Card, Row, SathiBadge, T } from '../components/atoms';
 import { colors } from '../theme';
 
@@ -32,7 +31,6 @@ const WEEK_EVENTS: Evt[][] = [
 ];
 
 export function CalendarScreen({ onClose }: { onClose: () => void }) {
-  const { isDesktop } = useResponsive();
   const [view, setView] = useState<'daily' | 'weekly'>('daily');
   const [day, setDay] = useState(3); // বৃহঃ
 
@@ -51,7 +49,7 @@ export function CalendarScreen({ onClose }: { onClose: () => void }) {
       </View>
 
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
-        <View style={{ width: '100%', maxWidth: isDesktop ? 640 : undefined, alignSelf: 'center', paddingHorizontal: 16, paddingTop: 16 }}>
+        <View style={{ width: '100%', maxWidth: 640, alignSelf: 'center', paddingHorizontal: 16, paddingTop: 16 }}>
           <Row gap={8} style={{ marginBottom: 14 }}>
             {(['daily', 'weekly'] as const).map((v) => {
               const active = view === v;

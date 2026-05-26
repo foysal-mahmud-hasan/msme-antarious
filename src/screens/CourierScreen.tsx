@@ -2,7 +2,6 @@ import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useResponsive } from '../components/AppFrame';
 import { Btn, Card, Row, T } from '../components/atoms';
 import { useToast } from '../components/Toast';
 import { colors } from '../theme';
@@ -31,7 +30,6 @@ const SHIPMENTS: { id: string; customer: string; address: string; status: ShipSt
 ];
 
 export function CourierScreen({ onClose }: { onClose: () => void }) {
-  const { isDesktop } = useResponsive();
   const toast = useToast();
   const [couriers, setCouriers] = useState(INIT_COURIERS);
 
@@ -60,7 +58,7 @@ export function CourierScreen({ onClose }: { onClose: () => void }) {
       </View>
 
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
-        <View style={{ width: '100%', maxWidth: isDesktop ? 640 : undefined, alignSelf: 'center', paddingHorizontal: 16, paddingTop: 16 }}>
+        <View style={{ width: '100%', maxWidth: 640, alignSelf: 'center', paddingHorizontal: 16, paddingTop: 16 }}>
           <Btn
             kind="primary"
             label="📦 নতুন পিকআপ বুক করুন"

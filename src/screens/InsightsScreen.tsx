@@ -2,7 +2,6 @@ import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useResponsive } from '../components/AppFrame';
 import { Btn, Card, Row, SathiBadge, T } from '../components/atoms';
 import { useToast } from '../components/Toast';
 import { useActions } from '../state/AppActions';
@@ -38,7 +37,6 @@ const PEAK_HOURS = [
 ];
 
 export function InsightsScreen({ onClose }: { onClose: () => void }) {
-  const { isDesktop } = useResponsive();
   const toast = useToast();
   const actions = useActions();
   const { weekIncome, weekExpense, weekNet } = useTransactions();
@@ -75,7 +73,7 @@ export function InsightsScreen({ onClose }: { onClose: () => void }) {
       </View>
 
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
-        <View style={{ width: '100%', maxWidth: isDesktop ? 680 : undefined, alignSelf: 'center', paddingHorizontal: 16, paddingTop: 16 }}>
+        <View style={{ width: '100%', maxWidth: 720, alignSelf: 'center', paddingHorizontal: 16, paddingTop: 16 }}>
           {/* Period toggle */}
           <Row gap={8} style={{ marginBottom: 14 }}>
             {PERIODS.map((p) => {
