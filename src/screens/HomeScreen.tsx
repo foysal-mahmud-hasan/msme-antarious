@@ -146,6 +146,33 @@ function HomeToday() {
           fg="#1d4ed8"
           onPress={() => actions.openOverlay('insights')}
         />
+        <FeatureTile
+          feature="calendar"
+          emoji="🗓️"
+          label="ক্যালেন্ডার"
+          sub="দৈনিক ও সাপ্তাহিক কাজ"
+          bg={colors.tealSoft}
+          fg={colors.tealDark}
+          onPress={() => actions.openOverlay('calendar')}
+        />
+        <FeatureTile
+          feature="inventory"
+          emoji="📦"
+          label="ইনভেন্টরি"
+          sub="ইনফ্লো · অটো আউটফ্লো"
+          bg={colors.amberSoft}
+          fg={colors.amber}
+          onPress={() => actions.openOverlay('inventory')}
+        />
+        <FeatureTile
+          feature="courier"
+          emoji="🛵"
+          label="কুরিয়ার"
+          sub="পিকআপ · ট্র্যাকিং"
+          bg="rgba(14,165,233,0.1)"
+          fg="#0284c7"
+          onPress={() => actions.openOverlay('courier')}
+        />
         <ExploreTile
           emoji="💎"
           label="আপগ্রেড"
